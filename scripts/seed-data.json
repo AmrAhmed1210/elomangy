@@ -1,0 +1,208 @@
+{
+  "tracks": [
+    { "name": "Biochemistry", "nameAr": "الكيمياء الحيوية", "slug": "biochemistry", "order": 1, "isFlat": false },
+    { "name": "Biophysics", "nameAr": "الفيزياء الحيوية", "slug": "biophysics", "order": 2, "isFlat": false },
+    { "name": "Chemistry/Microbiology", "nameAr": "الكيمياء/الميكروبيولوجيا", "slug": "chemistry-microbiology", "order": 3, "isFlat": false },
+    { "name": "Geology", "nameAr": "الجيولوجيا", "slug": "geology", "order": 4, "isFlat": false },
+    { "name": "Special Space", "nameAr": "الفضاء الخاص", "slug": "special-space", "order": 10, "isFlat": true }
+  ],
+  "semesters": [
+    { "trackSlug": "biochemistry", "label": "Semester 01", "order": 1, "year": 1 },
+    { "trackSlug": "biochemistry", "label": "Semester 02", "order": 2, "year": 1 },
+    { "trackSlug": "biochemistry", "label": "Semester 03", "order": 3, "year": 2 },
+    { "trackSlug": "biochemistry", "label": "Semester 04", "order": 4, "year": 2 },
+    { "trackSlug": "biochemistry", "label": "Semester 05", "order": 5, "year": 3 },
+    { "trackSlug": "biochemistry", "label": "Semester 06", "order": 6, "year": 3 },
+    { "trackSlug": "biochemistry", "label": "Semester 07", "order": 7, "year": 4 },
+    { "trackSlug": "biochemistry", "label": "Semester 08", "order": 8, "year": 4 },
+    { "trackSlug": "biophysics", "label": "Semester 03", "order": 3, "year": 2 },
+    { "trackSlug": "biophysics", "label": "Semester 04", "order": 4, "year": 2 },
+    { "trackSlug": "biophysics", "label": "Semester 05", "order": 5, "year": 3 },
+    { "trackSlug": "biophysics", "label": "Semester 06", "order": 6, "year": 3 },
+    { "trackSlug": "biophysics", "label": "Semester 07", "order": 7, "year": 4 },
+    { "trackSlug": "biophysics", "label": "Semester 08", "order": 8, "year": 4 },
+    { "trackSlug": "chemistry-microbiology", "label": "Semester 03", "order": 3, "year": 2 },
+    { "trackSlug": "chemistry-microbiology", "label": "Semester 04", "order": 4, "year": 2 },
+    { "trackSlug": "chemistry-microbiology", "label": "Semester 05", "order": 5, "year": 3 },
+    { "trackSlug": "chemistry-microbiology", "label": "Semester 06", "order": 6, "year": 3 },
+    { "trackSlug": "chemistry-microbiology", "label": "Semester 07", "order": 7, "year": 4 },
+    { "trackSlug": "chemistry-microbiology", "label": "Semester 08", "order": 8, "year": 4 },
+    { "trackSlug": "geology", "label": "Semester 03", "order": 3, "year": 2 },
+    { "trackSlug": "geology", "label": "Semester 04", "order": 4, "year": 2 },
+    { "trackSlug": "geology", "label": "Semester 05", "order": 5, "year": 3 },
+    { "trackSlug": "geology", "label": "Semester 06", "order": 6, "year": 3 },
+    { "trackSlug": "geology", "label": "Semester 07", "order": 7, "year": 4 },
+    { "trackSlug": "geology", "label": "Semester 08", "order": 8, "year": 4 }
+  ],
+  "courses": [
+    { "semesterKey": "biochemistry|Semester 01", "code": "Math 131", "name": "Calculus 1", "instructor": "Dr. Ahmed", "order": 1 },
+    { "semesterKey": "biochemistry|Semester 01", "code": "Phys 101", "name": "Physics 1", "instructor": "Dr. Mohamed", "order": 2 },
+    { "semesterKey": "biochemistry|Semester 01", "code": "Chem 101", "name": "General Chemistry", "instructor": "Dr. Sara", "order": 3 },
+    { "semesterKey": "biochemistry|Semester 02", "code": "Math 132", "name": "Calculus 2", "instructor": "Dr. Ahmed", "order": 1 },
+    { "semesterKey": "biochemistry|Semester 02", "code": "Phys 102", "name": "Physics 2", "instructor": "Dr. Mohamed", "order": 2 },
+    { "semesterKey": "biochemistry|Semester 03", "code": "Chem 241", "name": "Organic Chemistry", "instructor": "Dr. Karim", "order": 1 },
+    { "semesterKey": "biochemistry|Semester 03", "code": "Biochem 251", "name": "Biochemistry I", "instructor": "Dr. Laila", "order": 2 },
+    { "semesterKey": "biochemistry|Semester 04", "code": "Biochem 351", "name": "Proteins", "instructor": "Dr. Karim", "order": 1 },
+    { "semesterKey": "biochemistry|Semester 04", "code": "Biochem 352", "name": "Enzymes", "instructor": "Dr. Laila", "order": 2 }
+  ],
+  "resourceLinks": [
+    { "parentType": "course", "parentKey": "Chem 241", "label": "Materials", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-chem241", "order": 1 },
+    { "parentType": "course", "parentKey": "Chem 241", "label": "3loomangy Summaries", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-chem241-summaries", "order": 2 },
+    { "parentType": "course", "parentKey": "Chem 241", "label": "Exams", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-chem241-exams", "order": 3 },
+    { "parentType": "course", "parentKey": "Math 131", "label": "Materials", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-math131", "order": 1 },
+    { "parentType": "course", "parentKey": "Math 131", "label": "3loomangy Summaries", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-math131-summaries", "order": 2 },
+    { "parentType": "course", "parentKey": "Phys 101", "label": "Materials", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-phys101", "order": 1 },
+    { "parentType": "diploma", "parentKey": "biotechnology-diploma", "label": "Study Materials", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-biotech-materials", "order": 1 },
+    { "parentType": "diploma", "parentKey": "biotechnology-diploma", "label": "Past Exams", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-biotech-exams", "order": 2 },
+    { "parentType": "diploma", "parentKey": "bioinformatics-diploma", "label": "Study Materials", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-bioinfo-materials", "order": 1 },
+    { "parentType": "section", "parentKey": "equivalency-exams", "label": "Past Equivalency Exams", "type": "drive_folder", "url": "https://drive.google.com/drive/folders/example-equiv-exams", "order": 1 },
+    { "parentType": "section", "parentKey": "other-links", "label": "Useful External Links", "type": "external_link", "url": "https://sci.cu.edu.eg/", "order": 1 }
+  ],
+  "specialSections": [
+    { "slug": "equivalency-exams", "nameAr": "امتحانات المعادلة", "nameEn": "Equivalency Exams", "order": 1 },
+    { "slug": "other-links", "nameAr": "روابط أخرى", "nameEn": "Other Links", "order": 2 }
+  ],
+  "diplomas": [
+    {
+      "name": "Diploma in Biotechnology",
+      "nameAr": "دبلومة التكنولوجيا الحيوية",
+      "slug": "biotechnology-diploma",
+      "description": "Comprehensive biotechnology diploma covering genetic engineering, molecular biology, and bioprocessing.",
+      "eligibility": "Bachelor's degree in Science with minimum GPA 2.5",
+      "order": 1
+    },
+    {
+      "name": "Diploma in Bioinformatics",
+      "nameAr": "دبلومة المعلوماتية الحيوية",
+      "slug": "bioinformatics-diploma",
+      "description": "Learn computational biology, data analysis, and bioinformatics tools.",
+      "eligibility": "Bachelor's degree in Science or Computer Science",
+      "order": 2
+    }
+  ],
+  "trainingSessions": [
+    {
+      "key": "web-dev-fundamentals",
+      "title": "Web Development Fundamentals",
+      "description": "Learn the basics of web development with HTML, CSS, and JavaScript",
+      "mode": "videos",
+      "order": 1
+    },
+    {
+      "key": "advanced-programming",
+      "title": "Advanced Programming",
+      "description": "Deep dive into advanced programming concepts and soft skills",
+      "mode": "categories",
+      "order": 2
+    }
+  ],
+  "trainingCategories": [
+    { "sessionKey": "advanced-programming", "name": "Soft Skills", "description": "Communication, teamwork, and leadership skills", "order": 1 },
+    { "sessionKey": "advanced-programming", "name": "Technical Skills", "description": "Programming, databases, and system design", "order": 2 }
+  ],
+  "trainingVideos": [
+    {
+      "sessionKey": "web-dev-fundamentals",
+      "categoryKey": null,
+      "title": "Introduction to HTML",
+      "description": "Learn the basics of HTML structure and elements",
+      "youtubeUrl": "https://www.youtube.com/watch?v=qz0aGYrrlhU",
+      "duration": "12:30",
+      "order": 1
+    },
+    {
+      "sessionKey": "web-dev-fundamentals",
+      "categoryKey": null,
+      "title": "CSS Basics",
+      "description": "Styling web pages with CSS",
+      "youtubeUrl": "https://www.youtube.com/watch?v=1PnVor36_40",
+      "duration": "18:45",
+      "order": 2
+    },
+    {
+      "sessionKey": "advanced-programming",
+      "categoryKey": "Soft Skills",
+      "title": "Effective Communication",
+      "description": "Learn how to communicate effectively in teams",
+      "youtubeUrl": "https://www.youtube.com/watch?v=6pY7EjqD3QA",
+      "duration": "20:00",
+      "order": 1
+    },
+    {
+      "sessionKey": "advanced-programming",
+      "categoryKey": "Technical Skills",
+      "title": "Database Design Basics",
+      "description": "Introduction to relational database design",
+      "youtubeUrl": "https://www.youtube.com/watch?v=ztHopE5Wnpc",
+      "duration": "25:15",
+      "order": 1
+    }
+  ],
+  "siteConfig": {
+    "whatsappNumber": "+201025005751",
+    "facebookUrl": "https://facebook.com/3loomangy",
+    "youtubeUrl": "https://youtube.com/@3loomangy",
+    "linkedinUrl": "https://linkedin.com/company/3loomangy",
+    "whatsappChannelUrl": "https://whatsapp.com/channel/0029VaExample",
+    "aboutFscuContent": "FSCU (Faculty of Science, Cairo University) is one of Egypt's premier scientific institutions, offering undergraduate and postgraduate programs across chemistry, physics, biology, geology, and interdisciplinary sciences.\n\n3loomangy is a student-run initiative that organizes study materials, diploma resources, and training content to help FSCU students succeed academically."
+  },
+  "admins": [
+    { "email": "admin@3loomangy.com", "role": "admin" }
+  ],
+  "teamProjects": [
+    {
+      "title": "Science Fair 2025",
+      "description": "Annual science fair organized by 3loomangy showcasing student research projects",
+      "coverImageUrl": "https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800",
+      "link": "https://facebook.com/3loomangy",
+      "date": "2025-05-15T00:00:00.000Z",
+      "order": 1
+    },
+    {
+      "title": "Study Materials Drive",
+      "description": "Centralized Google Drive organization for all department materials",
+      "coverImageUrl": "https://images.unsplash.com/photo-1456513087680-9fa5bd086837?w=800",
+      "link": null,
+      "date": "2025-01-10T00:00:00.000Z",
+      "order": 2
+    }
+  ],
+  "teamEvents": [
+    {
+      "title": "Workshop: Research Methods",
+      "description": "Learn research methodology and scientific writing from senior students",
+      "date": "2026-08-20T14:00:00.000Z",
+      "isPast": false,
+      "location": "FSCU, Hall 3",
+      "registerLink": "https://forms.google.com/example"
+    },
+    {
+      "title": "Orientation Session 2025",
+      "description": "Welcome session for new team members",
+      "date": "2025-09-01T10:00:00.000Z",
+      "isPast": true,
+      "location": "FSCU Main Building",
+      "registerLink": null
+    }
+  ],
+  "teamServices": [
+    {
+      "title": "Free Tutoring",
+      "description": "Free tutoring sessions for first-year students in core science courses",
+      "contactLink": "https://wa.me/201025005751",
+      "order": 1
+    },
+    {
+      "title": "Printing Help",
+      "description": "Help with printing and formatting academic papers and reports",
+      "contactLink": "https://wa.me/201025005751",
+      "order": 2
+    },
+    {
+      "title": "Course Guidance",
+      "description": "Get advice on course selection and study strategies from experienced students",
+      "contactLink": "https://wa.me/201025005751",
+      "order": 3
+    }
+  ]
+}

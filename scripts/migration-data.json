@@ -1,0 +1,208 @@
+{
+  "tracks": [
+    {
+      "name": "Biochemistry",
+      "nameAr": "الكيمياء الحيوية",
+      "slug": "biochemistry",
+      "order": 1,
+      "isFlat": false
+    },
+    {
+      "name": "Biophysics",
+      "nameAr": "الفيزياء الحيوية",
+      "slug": "biophysics",
+      "order": 2,
+      "isFlat": false
+    },
+    {
+      "name": "Chemistry/Microbiology",
+      "nameAr": "الكيمياء/الميكروبيولوجيا",
+      "slug": "chemistry-microbiology",
+      "order": 3,
+      "isFlat": false
+    }
+  ],
+  "semesters": [
+    {
+      "trackSlug": "biochemistry",
+      "label": "Semester 01",
+      "order": 1,
+      "year": 1
+    },
+    {
+      "trackSlug": "biochemistry",
+      "label": "Semester 02",
+      "order": 2,
+      "year": 1
+    },
+    {
+      "trackSlug": "biochemistry",
+      "label": "Semester 03",
+      "order": 3,
+      "year": 2
+    },
+    {
+      "trackSlug": "biochemistry",
+      "label": "Semester 04",
+      "order": 4,
+      "year": 2
+    },
+    {
+      "trackSlug": "biophysics",
+      "label": "Semester 03",
+      "order": 3,
+      "year": 2
+    },
+    {
+      "trackSlug": "biophysics",
+      "label": "Semester 04",
+      "order": 4,
+      "year": 2
+    },
+    {
+      "trackSlug": "chemistry-microbiology",
+      "label": "Semester 03",
+      "order": 3,
+      "year": 2
+    },
+    {
+      "trackSlug": "chemistry-microbiology",
+      "label": "Semester 04",
+      "order": 4,
+      "year": 2
+    }
+  ],
+  "courses": [
+    {
+      "semesterLabel": "Semester 01",
+      "code": "Math 131",
+      "name": "Calculus 1",
+      "instructor": "Dr. Ahmed",
+      "order": 1
+    },
+    {
+      "semesterLabel": "Semester 01",
+      "code": "Phys 101",
+      "name": "Physics 1",
+      "instructor": "Dr. Mohamed",
+      "order": 2
+    },
+    {
+      "semesterLabel": "Semester 01",
+      "code": "Chem 101",
+      "name": "General Chemistry",
+      "instructor": "Dr. Sara",
+      "order": 3
+    },
+    {
+      "semesterLabel": "Semester 02",
+      "code": "Math 132",
+      "name": "Calculus 2",
+      "instructor": "Dr. Ahmed",
+      "order": 1
+    },
+    {
+      "semesterLabel": "Semester 02",
+      "code": "Phys 102",
+      "name": "Physics 2",
+      "instructor": "Dr. Mohamed",
+      "order": 2
+    },
+    {
+      "semesterLabel": "Semester 03",
+      "code": "Biochem 241",
+      "name": "Organic Chemistry",
+      "instructor": "Dr. Karim",
+      "order": 1
+    },
+    {
+      "semesterLabel": "Semester 03",
+      "code": "Biochem 242",
+      "name": "Biochemistry 1",
+      "instructor": "Dr. Laila",
+      "order": 2
+    },
+    {
+      "semesterLabel": "Semester 04",
+      "code": "Biochem 351",
+      "name": "Proteins",
+      "instructor": "Dr. Karim",
+      "order": 1
+    },
+    {
+      "semesterLabel": "Semester 04",
+      "code": "Biochem 352",
+      "name": "Enzymes",
+      "instructor": "Dr. Laila",
+      "order": 2
+    }
+  ],
+  "resourceLinks": [
+    {
+      "parentType": "course",
+      "parentSlug": "Math 131",
+      "label": "Materials",
+      "type": "drive_folder",
+      "url": "https://drive.google.com/folder/example-math131",
+      "order": 1
+    },
+    {
+      "parentType": "course",
+      "parentSlug": "Math 131",
+      "label": "3loomangy Summaries",
+      "type": "drive_folder",
+      "url": "https://drive.google.com/folder/example-math131-summaries",
+      "order": 2
+    },
+    {
+      "parentType": "course",
+      "parentSlug": "Math 131",
+      "label": "Exams",
+      "type": "drive_folder",
+      "url": "https://drive.google.com/folder/example-math131-exams",
+      "order": 3
+    },
+    {
+      "parentType": "course",
+      "parentSlug": "Phys 101",
+      "label": "Materials",
+      "type": "drive_folder",
+      "url": "https://drive.google.com/folder/example-phys101",
+      "order": 1
+    },
+    {
+      "parentType": "course",
+      "parentSlug": "Biochem 241",
+      "label": "Materials",
+      "type": "drive_folder",
+      "url": "https://drive.google.com/folder/example-biochem241",
+      "order": 1
+    },
+    {
+      "parentType": "course",
+      "parentSlug": "Biochem 241",
+      "label": "3loomangy Summaries",
+      "type": "drive_folder",
+      "url": "https://drive.google.com/folder/example-biochem241-summaries",
+      "order": 2
+    }
+  ],
+  "diplomas": [
+    {
+      "name": "Diploma in Biotechnology",
+      "nameAr": "دبلومة التكنولوجيا الحيوية",
+      "slug": "biotechnology-diploma",
+      "description": "This diploma covers modern biotechnology techniques including genetic engineering, molecular biology, and industrial applications.",
+      "eligibility": "Bachelor's degree in Biological Sciences with minimum GPA 2.5",
+      "order": 1
+    },
+    {
+      "name": "Diploma in Bioinformatics",
+      "nameAr": "دبلومة المعلوماتية الحيوية",
+      "slug": "bioinformatics-diploma",
+      "description": "Advanced training in computational biology, data analysis, and bioinformatics tools for biological research.",
+      "eligibility": "Bachelor's degree in Biological Sciences or Computer Science",
+      "order": 2
+    }
+  ]
+}

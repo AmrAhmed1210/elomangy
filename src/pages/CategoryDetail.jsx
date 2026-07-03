@@ -1,0 +1,156 @@
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { db } from "../lib/firebase";
+import { doc, getDoc, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import VideoCard from "../components/training/VideoCard";
+import LoadingSkeleton from "../components/common/LoadingSkeleton";
+import EmptyState from "../components/common/EmptyState";
+
+export default function CategoryDetail() {
+  const { sessionId, categoryId } = useParams();
+  const [session, setSession] = useState(null);
+  const [category, setCategory] = useState(null);
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchCategoryData() {
+      try {
+        // Fetch session
+        const sessionDoc = await getDoc(doc(db, "trainingSessions", sessionId));
+        if (!sessionDoc.exists()) {
+          setError("Session not found");
+          setLoading(false);
+          return;
+        }
+        
+        const sessionData = { id: sessionDoc.id, ...sessionDoc.data() };
+        setSession(sessionData);
+
+        // Fetch category
+        const categoryDoc = await getDoc(doc(db, "trainingCategories", categoryId));
+        if (!categoryDoc.exists()) {
+          setError("Category not found");
+          setLoading(false);
+          return;
+        }
+        
+        const categoryData = { id: categoryDoc.id, ...categoryDoc.data() };
+        setCategory(categoryData);
+
+        // Fetch videos for this category
+        const videosQuery = query(
+          collection(db, "trainingVideos"),
+          where("sessionId", "==", sessionId),
+          where("categoryId", "==", categoryId),
+          orderBy("order")
+        );
+        const videosSnapshot = await getDocs(videosQuery);
+        const videosData = videosSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setVideos(videosData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCategoryData();
+  }, [sessionId, categoryId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+        <div className="max-w-7xl mx-auto">
+          <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
+            <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
+            <span className="mx-2 text-chalkboard-light/50">/</span>
+            <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
+            <span className="mx-2 text-chalkboard-light/50">/</span>
+            <span className="text-lab-teal">Loading...</span>
+          </nav>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <LoadingSkeleton key={i} type="video" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+        <div className="max-w-7xl mx-auto">
+          <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
+            <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
+            <span className="mx-2 text-chalkboard-light/50">/</span>
+            <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
+            <span className="mx-2 text-chalkboard-light/50">/</span>
+            <span className="text-lab-teal">Error</span>
+          </nav>
+          
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-periodic-orange/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-periodic-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-periodic-orange text-lg font-medium">Error: {error}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+      <div className="max-w-7xl mx-auto">
+        <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
+          <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
+          <span className="mx-2 text-chalkboard-light/50">/</span>
+          <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
+          <span className="mx-2 text-chalkboard-light/50">/</span>
+          <Link to={`/training-sessions/${sessionId}`} className="hover:text-lab-teal transition-colors">{session.title}</Link>
+          <span className="mx-2 text-chalkboard-light/50">/</span>
+          <span className="text-lab-teal">{category.name}</span>
+        </nav>
+        
+        {/* Hero Section */}
+        <div className="mb-12">
+          <div className="inline-block mb-4">
+            <span className="px-4 py-2 bg-answer-green/10 border-2 border-answer-green/30 rounded-sm font-mono-smallcaps text-answer-green text-sm">
+              Category
+            </span>
+          </div>
+          <h1 className="font-display font-bold text-4xl text-chalkboard mb-3">{category.name}</h1>
+          {category.description && (
+            <p className="font-mono-smallcaps text-chalkboard-light text-sm max-w-2xl">{category.description}</p>
+          )}
+        </div>
+
+        {/* Videos */}
+        <h2 className="font-display font-semibold text-2xl text-chalkboard mb-6">Videos</h2>
+        {videos.length === 0 ? (
+          <EmptyState
+            title="No Videos"
+            description="Videos will appear here once they are added."
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {videos.map((video) => (
+              <VideoCard key={video.id} video={video} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
