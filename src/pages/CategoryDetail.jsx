@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { doc, getDoc, collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import VideoCard from "../components/training/VideoCard";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import EmptyState from "../components/common/EmptyState";
@@ -18,40 +17,45 @@ export default function CategoryDetail() {
     async function fetchCategoryData() {
       try {
         // Fetch session
-        const sessionDoc = await getDoc(doc(db, "trainingSessions", sessionId));
-        if (!sessionDoc.exists()) {
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('training_sessions')
+          .select('*')
+          .eq('id', sessionId)
+          .single();
+        
+        if (sessionError || !sessionData) {
           setError("Session not found");
           setLoading(false);
           return;
         }
         
-        const sessionData = { id: sessionDoc.id, ...sessionDoc.data() };
         setSession(sessionData);
 
         // Fetch category
-        const categoryDoc = await getDoc(doc(db, "trainingCategories", categoryId));
-        if (!categoryDoc.exists()) {
+        const { data: categoryData, error: categoryError } = await supabase
+          .from('training_categories')
+          .select('*')
+          .eq('id', categoryId)
+          .single();
+        
+        if (categoryError || !categoryData) {
           setError("Category not found");
           setLoading(false);
           return;
         }
         
-        const categoryData = { id: categoryDoc.id, ...categoryDoc.data() };
         setCategory(categoryData);
 
         // Fetch videos for this category
-        const videosQuery = query(
-          collection(db, "trainingVideos"),
-          where("sessionId", "==", sessionId),
-          where("categoryId", "==", categoryId),
-          orderBy("order")
-        );
-        const videosSnapshot = await getDocs(videosQuery);
-        const videosData = videosSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setVideos(videosData);
+        const { data: videosData, error: videosError } = await supabase
+          .from('training_videos')
+          .select('*')
+          .eq('session_id', sessionId)
+          .eq('category_id', categoryId)
+          .order('order');
+        
+        if (videosError) throw videosError;
+        setVideos(videosData || []);
       } catch (err) {
         setError(err.message);
       } finally {

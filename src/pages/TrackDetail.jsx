@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import ResourceLinkList from "../components/ResourceLinkList";
 
 export default function TrackDetail() {
@@ -16,43 +15,39 @@ export default function TrackDetail() {
     async function fetchData() {
       try {
         // Fetch track by slug
-        const trackQuery = query(collection(db, "tracks"), where("slug", "==", trackSlug));
-        const trackSnapshot = await getDocs(trackQuery);
-        if (trackSnapshot.empty) {
+        const { data: trackData, error: trackError } = await supabase
+          .from('tracks')
+          .select('*')
+          .eq('slug', trackSlug)
+          .single();
+        
+        if (trackError || !trackData) {
           setError("Track not found");
           setLoading(false);
           return;
         }
-        const trackData = trackSnapshot.docs[0];
-        const trackObj = { id: trackData.id, ...trackData.data() };
-        setTrack(trackObj);
+        setTrack(trackData);
 
         // If not flat, fetch semesters
-        if (!trackObj.isFlat) {
-          const semQuery = query(
-            collection(db, "semesters"),
-            where("trackId", "==", trackObj.id),
-            orderBy("order")
-          );
-          const semSnapshot = await getDocs(semQuery);
-          const semData = semSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setSemesters(semData);
+        if (!trackData.is_flat) {
+          const { data: semData, error: semError } = await supabase
+            .from('semesters')
+            .select('*')
+            .eq('track_id', trackData.id)
+            .order('order');
+          
+          if (semError) throw semError;
+          setSemesters(semData || []);
         } else {
           // If flat, fetch resource links directly linked to this track
-          const linksQuery = query(
-            collection(db, "resourceLinks"),
-            where("parentType", "==", "track"),
-            where("parentId", "==", trackObj.id)
-          );
-          const linksSnapshot = await getDocs(linksQuery);
-          const linksData = linksSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setResourceLinks(linksData);
+          const { data: linksData, error: linksError } = await supabase
+            .from('resource_links')
+            .select('*')
+            .eq('parent_type', 'track')
+            .eq('parent_id', trackData.id);
+          
+          if (linksError) throw linksError;
+          setResourceLinks(linksData || []);
         }
       } catch (err) {
         setError(err.message);
@@ -80,10 +75,10 @@ export default function TrackDetail() {
         {/* Hero Section */}
         <div className="mb-12">
           <h1 className="text-5xl font-bold text-chalkboard mb-2 font-display">{track.name}</h1>
-          <p className="text-2xl text-chalkboard-light font-medium" dir="rtl">{track.nameAr}</p>
+          <p className="text-2xl text-chalkboard-light font-medium" dir="rtl">{track.name_ar}</p>
         </div>
 
-        {!track.isFlat ? (
+        {!track.is_flat ? (
           <div>
             <h2 className="text-2xl font-semibold text-chalkboard mb-6">Semesters</h2>
             {semesters.length === 0 ? (

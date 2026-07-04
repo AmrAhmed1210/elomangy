@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 import useSiteConfig from "../../hooks/useSiteConfig";
 
 export default function Footer() {
   const { config } = useSiteConfig();
+  const { isAdmin } = useAuth();
   const waLink = config.whatsappNumber
     ? `https://wa.me/${config.whatsappNumber.replace(/\D/g, "")}`
     : null;
@@ -28,6 +30,7 @@ export default function Footer() {
                 { to: "/diplomas", label: "Diplomas" },
                 { to: "/training-sessions", label: "Training Sessions" },
                 { to: "/about", label: "About FSCU" },
+                { to: isAdmin ? "/admin" : "/admin/login", label: isAdmin ? "Admin dashboard" : "Admin login" },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link to={to} className="text-chalkboard-light hover:text-lab-teal transition-colors">

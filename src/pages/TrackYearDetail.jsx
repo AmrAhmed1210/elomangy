@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import Fuse from "fuse.js";
 
@@ -21,27 +20,28 @@ export default function TrackYearDetail() {
         setLoading(true);
         
         // Fetch track by slug
-        const trackQ = query(
-          collection(db, "tracks"),
-          where("slug", "==", trackSlug)
-        );
-        const trackSnapshot = await getDocs(trackQ);
-        if (trackSnapshot.empty) {
+        const { data: trackData, error: trackError } = await supabase
+          .from('tracks')
+          .select('*')
+          .eq('slug', trackSlug)
+          .single();
+        
+        if (trackError || !trackData) {
           setError("Track not found");
           return;
         }
-        const trackData = { id: trackSnapshot.docs[0].id, ...trackSnapshot.docs[0].data() };
         setTrack(trackData);
 
         // Fetch semesters for this track and year
-        const semQ = query(
-          collection(db, "semesters"),
-          where("trackId", "==", trackData.id),
-          where("year", "==", yearNum),
-          orderBy("order")
-        );
-        const semSnapshot = await getDocs(semQ);
-        setSemesters(semSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        const { data: semData, error: semError } = await supabase
+          .from('semesters')
+          .select('*')
+          .eq('track_id', trackData.id)
+          .eq('year', yearNum)
+          .order('order');
+        
+        if (semError) throw semError;
+        setSemesters(semData || []);
       } catch (err) {
         setError(err.message);
       } finally {

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { supabase } from "../lib/supabase";
 
 const DEFAULTS = {
   whatsappNumber: "+201025005751",
@@ -18,9 +17,21 @@ export default function useSiteConfig() {
   useEffect(() => {
     async function load() {
       try {
-        const snap = await getDoc(doc(db, "siteConfig", "main"));
-        if (snap.exists()) {
-          setConfig({ ...DEFAULTS, ...snap.data() });
+        const { data, error } = await supabase
+          .from('site_config')
+          .select('*')
+          .eq('id', 1)
+          .single();
+        
+        if (data && !error) {
+          setConfig({
+            whatsappNumber: data.whatsapp_number || DEFAULTS.whatsappNumber,
+            facebookUrl: data.facebook_url || DEFAULTS.facebookUrl,
+            youtubeUrl: data.youtube_url || DEFAULTS.youtubeUrl,
+            linkedinUrl: data.linkedin_url || DEFAULTS.linkedinUrl,
+            whatsappChannelUrl: data.whatsapp_channel_url || DEFAULTS.whatsappChannelUrl,
+            aboutFscuContent: data.about_fscu_content || DEFAULTS.aboutFscuContent,
+          });
         }
       } catch {
         // fall back to defaults

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import Fuse from "fuse.js";
 
@@ -31,37 +30,34 @@ export default function YearDetail() {
         
         if (yearNum === 1) {
           // Year 1: Fetch semesters with year=1 (no track filter)
-          const q = query(
-            collection(db, "semesters"),
-            where("year", "==", 1),
-            orderBy("order")
-          );
-          const snapshot = await getDocs(q);
-          setSemesters(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+          const { data, error } = await supabase
+            .from('semesters')
+            .select('*')
+            .eq('year', 1)
+            .order('order');
+          
+          if (error) throw error;
+          setSemesters(data || []);
         } else {
           // Years 2-4: Fetch tracks that have semesters for this year
-          const semQ = query(
-            collection(db, "semesters"),
-            where("year", "==", yearNum),
-            orderBy("order")
-          );
-          const semSnapshot = await getDocs(semQ);
-          const semesterData = semSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          const { data: semesterData, error: semError } = await supabase
+            .from('semesters')
+            .select('track_id')
+            .eq('year', yearNum);
           
-          const trackIds = [...new Set(semesterData.map((s) => s.trackId?.id || s.trackId))];
+          if (semError) throw semError;
+          
+          const trackIds = [...new Set(semesterData.map((s) => s.track_id))];
           
           if (trackIds.length > 0) {
-            const trackQ = query(
-              collection(db, "tracks"),
-              orderBy("order")
-            );
-            const trackSnapshot = await getDocs(trackQ);
-            const allTracks = trackSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            const { data: tracksData, error: trackError } = await supabase
+              .from('tracks')
+              .select('*')
+              .in('id', trackIds)
+              .order('order');
             
-            const relevantTracks = allTracks.filter((track) => 
-              trackIds.includes(track.id)
-            );
-            setTracks(relevantTracks);
+            if (trackError) throw trackError;
+            setTracks(tracksData || []);
           }
         }
       } catch (err) {

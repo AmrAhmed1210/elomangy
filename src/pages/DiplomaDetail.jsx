@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import ResourceLinkList from "../components/ResourceLinkList";
 
 export default function DiplomaDetail() {
@@ -15,30 +14,29 @@ export default function DiplomaDetail() {
     async function fetchData() {
       try {
         // Fetch diploma by slug
-        const diplomaQuery = query(collection(db, "diplomas"), where("slug", "==", slug));
-        const diplomaSnapshot = await getDocs(diplomaQuery);
-        if (diplomaSnapshot.empty) {
+        const { data: diplomaData, error: diplomaError } = await supabase
+          .from('diplomas')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+        
+        if (diplomaError || !diplomaData) {
           setError("Diploma not found");
           setLoading(false);
           return;
         }
-        const diplomaData = diplomaSnapshot.docs[0];
-        const diplomaObj = { id: diplomaData.id, ...diplomaData.data() };
-        setDiploma(diplomaObj);
+        setDiploma(diplomaData);
 
         // Fetch resource links for this diploma
-        const linksQuery = query(
-          collection(db, "resourceLinks"),
-          where("parentType", "==", "diploma"),
-          where("parentId", "==", diplomaObj.id),
-          orderBy("order")
-        );
-        const linksSnapshot = await getDocs(linksQuery);
-        const linksData = linksSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setResourceLinks(linksData);
+        const { data: linksData, error: linksError } = await supabase
+          .from('resource_links')
+          .select('*')
+          .eq('parent_type', 'diploma')
+          .eq('parent_id', diplomaData.id)
+          .order('order');
+        
+        if (linksError) throw linksError;
+        setResourceLinks(linksData || []);
       } catch (err) {
         setError(err.message);
       } finally {

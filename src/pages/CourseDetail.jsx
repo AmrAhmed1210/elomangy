@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { collection, getDocs, query, where, orderBy, doc, getDoc } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import ResourceLinkList from "../components/ResourceLinkList";
 
 export default function CourseDetail() {
@@ -14,30 +13,30 @@ export default function CourseDetail() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // First get course by doc id
-        const courseDocRef = doc(db, "courses", courseId);
-        const courseDoc = await getDoc(courseDocRef);
-        if (!courseDoc.exists()) {
+        // First get course by id
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('id', courseId)
+          .single();
+        
+        if (courseError || !courseData) {
           setError("Course not found");
           setLoading(false);
           return;
         }
-        const courseObj = { id: courseDoc.id, ...courseDoc.data() };
-        setCourse(courseObj);
+        setCourse(courseData);
 
         // Now get resource links
-        const linksQuery = query(
-          collection(db, "resourceLinks"),
-          where("parentType", "==", "course"),
-          where("parentId", "==", courseId),
-          orderBy("order")
-        );
-        const linksSnapshot = await getDocs(linksQuery);
-        const linksData = linksSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setLinks(linksData);
+        const { data: linksData, error: linksError } = await supabase
+          .from('resource_links')
+          .select('*')
+          .eq('parent_type', 'course')
+          .eq('parent_id', courseId)
+          .order('order');
+        
+        if (linksError) throw linksError;
+        setLinks(linksData || []);
       } catch (err) {
         setError(err.message);
       } finally {

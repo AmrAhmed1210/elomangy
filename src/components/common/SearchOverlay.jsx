@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Fuse from "fuse.js";
-import { db } from "../../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { supabase } from "../../lib/supabase";
 
 export default function SearchOverlay({ isOpen, onClose }) {
   const [query, setQuery] = useState("");
@@ -13,17 +12,17 @@ export default function SearchOverlay({ isOpen, onClose }) {
   useEffect(() => {
     if (isOpen && allData.tracks.length === 0) {
       setLoading(true);
-      // Fetch all searchable data from Firebase
+      // Fetch all searchable data from Supabase
       Promise.all([
-        getDocs(collection(db, "tracks")),
-        getDocs(collection(db, "courses")),
-        getDocs(collection(db, "diplomas")),
+        supabase.from('tracks').select('*'),
+        supabase.from('courses').select('*'),
+        supabase.from('diplomas').select('*'),
       ])
-        .then(([tracksSnap, coursesSnap, diplomasSnap]) => {
+        .then(([tracksRes, coursesRes, diplomasRes]) => {
           setAllData({
-            tracks: tracksSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
-            courses: coursesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
-            diplomas: diplomasSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
+            tracks: tracksRes.data || [],
+            courses: coursesRes.data || [],
+            diplomas: diplomasRes.data || [],
           });
           setLoading(false);
         })

@@ -8,12 +8,13 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "seed": "node scripts/seed.js",
-    "seed:force": "node scripts/seed.js --force"
+    "seed": "node scripts/seed-supabase.js",
+    "seed:supabase": "node scripts/seed-supabase.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.0",
     "@tailwindcss/vite": "^4.3.2",
-    "firebase": "^12.15.0",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.42.2",
     "fuse.js": "^7.4.2",
     "react": "^19.2.7",
@@ -22,7 +23,6 @@
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
-    "firebase-admin": "^13.4.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",

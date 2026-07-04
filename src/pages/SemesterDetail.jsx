@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { db } from "../lib/firebase";
-import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import Fuse from "fuse.js";
 
@@ -18,38 +17,41 @@ export default function SemesterDetail() {
     async function fetchData() {
       try {
         // Get semester by ID directly
-        const semDoc = await getDocs(collection(db, "semesters"));
-        const targetSem = semDoc.docs.find((doc) => doc.id === semesterId);
-        if (!targetSem) {
+        const { data: semData, error: semError } = await supabase
+          .from('semesters')
+          .select('*')
+          .eq('id', semesterId)
+          .single();
+        
+        if (semError || !semData) {
           setError("Semester not found");
           setLoading(false);
           return;
         }
-        const semObj = { id: targetSem.id, ...targetSem.data() };
-        setSemester(semObj);
+        setSemester(semData);
 
         // Get track if trackSlug is provided (not for Year 1)
         if (trackSlug) {
-          const trackQuery = query(collection(db, "tracks"), where("slug", "==", trackSlug));
-          const trackSnapshot = await getDocs(trackQuery);
-          if (!trackSnapshot.empty) {
-            const trackData = trackSnapshot.docs[0];
-            setTrack({ id: trackData.id, ...trackData.data() });
+          const { data: trackData, error: trackError } = await supabase
+            .from('tracks')
+            .select('*')
+            .eq('slug', trackSlug)
+            .single();
+          
+          if (!trackError && trackData) {
+            setTrack(trackData);
           }
         }
 
         // Get courses linked to semesterId
-        const courseQuery = query(
-          collection(db, "courses"),
-          where("semesterId", "==", semesterId),
-          orderBy("order")
-        );
-        const courseSnapshot = await getDocs(courseQuery);
-        const courseData = courseSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCourses(courseData);
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('semester_id', semesterId)
+          .order('order');
+        
+        if (courseError) throw courseError;
+        setCourses(courseData || []);
       } catch (err) {
         setError(err.message);
       } finally {
