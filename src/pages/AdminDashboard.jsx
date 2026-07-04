@@ -10,10 +10,12 @@ const YEAR_TABS = [
 ];
 
 const ADMIN_TABS = [
+  { key: "mat-boxes", label: "Materials Boxes" },
   ...YEAR_TABS,
   { key: "diplomas", label: "Diplomas" },
   { key: "training", label: "Training" },
   { key: "about", label: "About FSCU" },
+  { key: "admins", label: "Admins" },
 ];
 
 const LINK_TYPES = [
@@ -25,24 +27,25 @@ const LINK_TYPES = [
 ];
 
 const emptyTrack = { name: "", name_ar: "" };
-const emptyBox = { label: "" };
-const emptyCourse = { code: "", name: "", instructor: "" };
+const emptyBox = { label: "", link: "" };
+const emptyCourse = { code: "", name: "", instructor: "", link: "" };
 const emptyLink = { label: "", type: "drive_folder", url: "" };
 const emptyDiploma = { name: "", name_ar: "", description: "", eligibility: "" };
 const emptyTraining = { title: "", description: "", videoUrl: "" };
+const emptyDashboardBox = { title: "", title_ar: "", description: "", link: "" };
 
 export default function AdminDashboard() {
   const { signOut, user } = useAuth();
-  const [activeTab, setActiveTab] = useState("year-1");
+  const [activeTab, setActiveTab] = useState("mat-boxes");
   const activeYear = YEAR_TABS.find((tab) => tab.key === activeTab);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-900/95 px-4 py-5">
+      <header className="border-b border-slate-800/80 bg-slate-900/95 px-4 py-5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">3loomangy admin</p>
-            <h1 className="mt-1 font-display text-3xl font-bold text-white">Content management</h1>
+            <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Content management</h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-300">
               Manage years, departments, boxes, courses, resource links, diplomas, training sessions, and About FSCU.
             </p>
@@ -60,30 +63,207 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-6">
-        <nav className="mb-5 flex flex-wrap gap-2">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:py-6">
+        <nav className="mb-5 flex gap-2 overflow-x-auto pb-2 sm:flex-wrap sm:overflow-visible" aria-label="Admin sections">
           {ADMIN_TABS.map((tab) => (
             <button
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`min-h-11 rounded-card px-4 py-2 text-sm font-semibold transition ${
-                activeTab === tab.key
-                  ? "bg-cyan-300 text-slate-950"
-                  : "border border-slate-800 bg-slate-900 text-slate-200 hover:border-cyan-300"
-              }`}
+              className={`min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === tab.key
+                  ? "bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-950/40"
+                  : "border border-slate-800 bg-slate-900 text-slate-200 hover:border-cyan-300 hover:text-cyan-100"
+                }`}
             >
               {tab.label}
             </button>
           ))}
         </nav>
 
+        {activeTab === "mat-boxes" && <DashboardBoxesManager />}
         {activeYear && <YearContentManager key={activeYear.key} year={activeYear.year} title={activeYear.label} />}
         {activeTab === "diplomas" && <DiplomasManager />}
         {activeTab === "training" && <TrainingManager />}
         {activeTab === "about" && <AboutManager />}
+        {activeTab === "admins" && <AdminsManager />}
       </div>
     </main>
+  );
+}
+
+function DashboardBoxesManager() {
+  const [boxes, setBoxes] = useState([]);
+  const [links, setLinks] = useState([]);
+  const [selectedBoxId, setSelectedBoxId] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [boxForm, setBoxForm] = useState(emptyDashboardBox);
+  const [linkForm, setLinkForm] = useState(emptyLink);
+  const [editingBoxId, setEditingBoxId] = useState("");
+  const [editingLinkId, setEditingLinkId] = useState("");
+  const selectedBox = boxes.find((b) => b.id === selectedBoxId);
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+
+  const loadBoxes = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("dashboard_boxes").select("*").order("order", { ascending: true });
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+      setBoxes([]);
+    } else {
+      setBoxes(data ?? []);
+    }
+    setLoading(false);
+  }, [showMessage]);
+
+  const loadLinks = useCallback(async (boxId) => {
+    if (!boxId) { setLinks([]); return; }
+    const { data, error } = await supabase
+      .from("resource_links")
+      .select("*")
+      .eq("parent_type", "dashboard_box")
+      .eq("parent_id", boxId)
+      .order("order", { ascending: true });
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+      setLinks([]);
+    } else {
+      setLinks(data ?? []);
+    }
+  }, [showMessage]);
+
+  useEffect(() => { loadBoxes(); }, [loadBoxes]);
+  useEffect(() => { loadLinks(selectedBoxId); setLinkForm(emptyLink); setEditingLinkId(""); }, [loadLinks, selectedBoxId]);
+
+  async function saveBox(event) {
+    event.preventDefault();
+    const title = boxForm.title.trim();
+    if (!title) { showMessage("error", "Please enter a box title."); return; }
+    setBusy(true);
+    const payload = {
+      title,
+      title_ar: boxForm.title_ar.trim() || null,
+      description: boxForm.description.trim() || null,
+      link: boxForm.link.trim() || null,
+    };
+    const request = editingBoxId
+      ? supabase.from("dashboard_boxes").update(payload).eq("id", editingBoxId)
+      : supabase.from("dashboard_boxes").insert({ ...payload, order: boxes.length });
+    const { data, error } = await request.select().single();
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+    } else {
+      setBoxForm(emptyDashboardBox);
+      setEditingBoxId("");
+      await loadBoxes();
+      if (!editingBoxId && data?.id) setSelectedBoxId(data.id);
+      showMessage("success", editingBoxId ? "Box updated." : "Box added to Materials page.");
+    }
+    setBusy(false);
+  }
+
+  async function saveBoxLink(event) {
+    event.preventDefault();
+    await saveResourceLink({
+      event,
+      editingId: editingLinkId,
+      form: linkForm,
+      links,
+      parentId: selectedBoxId,
+      parentType: "dashboard_box",
+      reset: () => { setLinkForm(emptyLink); setEditingLinkId(""); },
+      reload: () => loadLinks(selectedBoxId),
+      setBusy,
+      showMessage,
+    });
+  }
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel
+        breadcrumb={["Materials Boxes", selectedBox?.title].filter(Boolean)}
+        message={message}
+        kicker="Materials page dashboard"
+        title="Materials Boxes"
+      />
+      <p className="text-sm text-slate-400 -mt-3">
+        These boxes appear as cards on the public <strong>Materials</strong> page (alongside Years 1–4).
+        If a box has a <strong>direct link</strong>, clicking it goes to that URL.
+        If not, it opens a detail page showing the sub-links you add here.
+      </p>
+
+      <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
+        {/* Left: box list + form */}
+        <AdminPanel title="Dashboard Boxes" description="Add, edit, and reorder boxes shown on the Materials page.">
+          <form onSubmit={saveBox} className="grid gap-3">
+            <TextField label="Box title" value={boxForm.title} onChange={(title) => setBoxForm({ ...boxForm, title })} placeholder="Equivalency Exams" />
+            <TextField label="Arabic title (optional)" value={boxForm.title_ar} onChange={(title_ar) => setBoxForm({ ...boxForm, title_ar })} placeholder="امتحانات المعادلة" />
+            <TextareaField label="Description (optional)" value={boxForm.description} onChange={(description) => setBoxForm({ ...boxForm, description })} />
+            <TextField label="Direct link (optional)" type="url" value={boxForm.link} onChange={(link) => setBoxForm({ ...boxForm, link })} placeholder="https://drive.google.com/..." />
+            <p className="text-xs text-slate-500 -mt-1">If set, clicking this box on the Materials page opens the link directly. Otherwise it opens a page with sub-links.</p>
+            <FormActions busy={busy} editing={Boolean(editingBoxId)} createLabel="+ Add Box" saveLabel="Save Box" onCancel={() => { setEditingBoxId(""); setBoxForm(emptyDashboardBox); }} />
+          </form>
+          <div className="mt-5">
+            {loading ? (
+              <LoadingRows />
+            ) : (
+              <AdminList
+                emptyText="No dashboard boxes yet. Add one to show it on the Materials page."
+                rows={boxes}
+                selectedId={selectedBoxId}
+                getTitle={(b) => b.title}
+                getSubtitle={(b) => b.link ? `Direct link: ${b.link}` : b.description}
+                onSelect={(b) => setSelectedBoxId(b.id)}
+                onEdit={(b) => {
+                  setEditingBoxId(b.id);
+                  setBoxForm({ title: b.title ?? "", title_ar: b.title_ar ?? "", description: b.description ?? "", link: b.link ?? "" });
+                }}
+                onDelete={(b) => deleteRow("dashboard_boxes", b, b.title, async () => {
+                  if (selectedBoxId === b.id) setSelectedBoxId("");
+                  await loadBoxes();
+                }, setBusy, showMessage)}
+                onMoveUp={(b) => moveRow("dashboard_boxes", boxes, b, "up", loadBoxes, setBusy, showMessage)}
+                onMoveDown={(b) => moveRow("dashboard_boxes", boxes, b, "down", loadBoxes, setBusy, showMessage)}
+              />
+            )}
+          </div>
+        </AdminPanel>
+
+        {/* Right: sub-links for selected box */}
+        <AdminPanel
+          title="Box sub-links"
+          description={selectedBox ? (selectedBox.link ? `"${selectedBox.title}" has a direct link — sub-links won't show on the public site.` : `Links shown when students click "${selectedBox.title}".`) : "Choose a box to manage its sub-links."}
+        >
+          {selectedBox ? (
+            <>
+              <LinkForm
+                busy={busy}
+                editing={Boolean(editingLinkId)}
+                form={linkForm}
+                onCancel={() => { setEditingLinkId(""); setLinkForm(emptyLink); }}
+                onChange={setLinkForm}
+                onSubmit={saveBoxLink}
+              />
+              <div className="mt-5">
+                <AdminList
+                  emptyText="No sub-links yet."
+                  rows={links}
+                  getTitle={(l) => l.label}
+                  getSubtitle={(l) => `${linkTypeLabel(l.type)} - ${l.url}`}
+                  onEdit={(l) => { setEditingLinkId(l.id); setLinkForm({ label: l.label ?? "", type: l.type ?? "drive_folder", url: l.url ?? "" }); }}
+                  onDelete={(l) => deleteRow("resource_links", l, l.label, () => loadLinks(selectedBoxId), setBusy, showMessage)}
+                  onMoveUp={(l) => moveRow("resource_links", links, l, "up", () => loadLinks(selectedBoxId), setBusy, showMessage)}
+                  onMoveDown={(l) => moveRow("resource_links", links, l, "down", () => loadLinks(selectedBoxId), setBusy, showMessage)}
+                />
+              </div>
+            </>
+          ) : (
+            <EmptyPrompt text="Select a box to manage its sub-links." />
+          )}
+        </AdminPanel>
+      </div>
+    </section>
   );
 }
 
@@ -272,7 +452,7 @@ function YearContentManager({ title, year }) {
     }
 
     setBusy(true);
-    const payload = { label, year, track_id: needsDepartments ? selectedTrackId : null };
+    const payload = { label, year, track_id: needsDepartments ? selectedTrackId : null, link: boxForm.link.trim() || null };
     const request = editingBoxId
       ? supabase.from("semesters").update(payload).eq("id", editingBoxId)
       : supabase.from("semesters").insert({ ...payload, order: boxes.length });
@@ -302,7 +482,7 @@ function YearContentManager({ title, year }) {
     }
 
     setBusy(true);
-    const payload = { semester_id: selectedBoxId, name, code, instructor };
+    const payload = { semester_id: selectedBoxId, name, code, instructor, link: courseForm.link.trim() || null };
     const request = editingCourseId
       ? supabase.from("courses").update(payload).eq("id", editingCourseId)
       : supabase.from("courses").insert({ ...payload, order: courses.length });
@@ -405,10 +585,11 @@ function YearContentManager({ title, year }) {
                     rows={boxes}
                     selectedId={selectedBoxId}
                     getTitle={(box) => box.label}
+                    getSubtitle={(box) => box.link ? `Direct link: ${box.link}` : null}
                     onSelect={(box) => setSelectedBoxId(box.id)}
                     onEdit={(box) => {
                       setEditingBoxId(box.id);
-                      setBoxForm({ label: box.label ?? "" });
+                      setBoxForm({ label: box.label ?? "", link: box.link ?? "" });
                     }}
                     onDelete={(box) =>
                       deleteRow("semesters", box, box.label, async () => {
@@ -442,16 +623,14 @@ function YearContentManager({ title, year }) {
                 onSubmit={saveCourse}
               />
               <div className="mt-5">
-                <AdminList
+                <CourseCardList
                   emptyText="No courses in this box yet."
-                  rows={courses}
+                  courses={courses}
                   selectedId={selectedCourseId}
-                  getTitle={(course) => course.name}
-                  getSubtitle={(course) => [course.code, course.instructor].filter(Boolean).join(" - ")}
                   onSelect={(course) => setSelectedCourseId(course.id)}
                   onEdit={(course) => {
                     setEditingCourseId(course.id);
-                    setCourseForm({ code: course.code ?? "", name: course.name ?? "", instructor: course.instructor ?? "" });
+                    setCourseForm({ code: course.code ?? "", name: course.name ?? "", instructor: course.instructor ?? "", link: course.link ?? "" });
                   }}
                   onDelete={(course) =>
                     deleteRow("courses", course, course.name, async () => {
@@ -710,11 +889,15 @@ function DiplomasManager() {
   );
 }
 
+const emptyAddVideo = { videoUrl: "" };
+
 function TrainingManager() {
   const [sessions, setSessions] = useState([]);
   const [videos, setVideos] = useState([]);
   const [selectedSessionId, setSelectedSessionId] = useState("");
   const [form, setForm] = useState(emptyTraining);
+  const [addVideoForm, setAddVideoForm] = useState(emptyAddVideo);
+  const [addVideoBusy, setAddVideoBusy] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({ type: "", text: "" });
@@ -811,6 +994,39 @@ function TrainingManager() {
     setBusy(false);
   }
 
+  async function addVideoToSession(event) {
+    event.preventDefault();
+    if (!selectedSessionId) return;
+    const videoUrl = addVideoForm.videoUrl.trim();
+    if (!videoUrl) {
+      showMessage("error", "Please enter a video or playlist URL.");
+      return;
+    }
+
+    setAddVideoBusy(true);
+    const expandedVideos = await expandPlaylistIfPossible(videoUrl);
+    const startOrder = videos.length;
+    const videoRows = expandedVideos.map((video, index) => ({
+      session_id: selectedSessionId,
+      category_id: null,
+      title: video.title || selectedSession?.title || "Untitled video",
+      description: "",
+      youtube_url: video.url,
+      duration: "",
+      order: startOrder + index,
+    }));
+
+    const { error } = await supabase.from("training_videos").insert(videoRows);
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+    } else {
+      setAddVideoForm(emptyAddVideo);
+      await loadVideos(selectedSessionId);
+      showMessage("success", expandedVideos.length > 1 ? `Added ${expandedVideos.length} videos from the playlist.` : "Video added to this group.");
+    }
+    setAddVideoBusy(false);
+  }
+
   return (
     <section className="grid gap-5">
       <HeaderPanel breadcrumb={["Training", selectedSession?.title].filter(Boolean)} message={message} kicker="Training sessions" title="Training admin" />
@@ -847,17 +1063,38 @@ function TrainingManager() {
 
         <AdminPanel title="Videos in selected group" description={selectedSession ? `Videos under ${selectedSession.title}.` : "Choose a training group to see its videos."}>
           {selectedSession ? (
-            <AdminList
-              emptyText="No videos in this group yet."
-              rows={videos}
-              getTitle={(video) => video.title}
-              getSubtitle={(video) => video.youtube_url}
-              onEdit={(video) => window.open(video.youtube_url, "_blank", "noopener,noreferrer")}
-              onDelete={(video) => deleteRow("training_videos", video, video.title, () => loadVideos(selectedSessionId), setBusy, showMessage)}
-              onMoveUp={(video) => moveRow("training_videos", videos, video, "up", () => loadVideos(selectedSessionId), setBusy, showMessage)}
-              onMoveDown={(video) => moveRow("training_videos", videos, video, "down", () => loadVideos(selectedSessionId), setBusy, showMessage)}
-              editLabel="Open"
-            />
+            <div className="grid gap-5">
+              <form onSubmit={addVideoToSession} className="grid gap-3 rounded-card border border-slate-800 bg-slate-950/60 p-4">
+                <p className="text-sm font-semibold text-slate-200">+ Add another video to "{selectedSession.title}"</p>
+                <TextField
+                  label="Video or playlist URL"
+                  type="url"
+                  value={addVideoForm.videoUrl}
+                  onChange={(videoUrl) => setAddVideoForm({ ...addVideoForm, videoUrl })}
+                  placeholder="https://youtube.com/..."
+                />
+                <p className="text-xs text-slate-500 -mt-1">A playlist URL will add every video inside it to this group.</p>
+                <button
+                  type="submit"
+                  disabled={addVideoBusy}
+                  className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {addVideoBusy ? "Adding..." : "+ Add Video"}
+                </button>
+              </form>
+
+              <AdminList
+                emptyText="No videos in this group yet."
+                rows={videos}
+                getTitle={(video) => video.title}
+                getSubtitle={(video) => video.youtube_url}
+                onEdit={(video) => window.open(video.youtube_url, "_blank", "noopener,noreferrer")}
+                onDelete={(video) => deleteRow("training_videos", video, video.title, () => loadVideos(selectedSessionId), setBusy, showMessage)}
+                onMoveUp={(video) => moveRow("training_videos", videos, video, "up", () => loadVideos(selectedSessionId), setBusy, showMessage)}
+                onMoveDown={(video) => moveRow("training_videos", videos, video, "down", () => loadVideos(selectedSessionId), setBusy, showMessage)}
+                editLabel="Open"
+              />
+            </div>
           ) : (
             <EmptyPrompt text="Select a training group first." />
           )}
@@ -919,9 +1156,141 @@ function AboutManager() {
   );
 }
 
+function AdminsManager() {
+  const { user } = useAuth();
+  const [admins, setAdmins] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [newEmail, setNewEmail] = useState("");
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+
+  const loadAdmins = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("admins")
+      .select("email, role, added_at")
+      .order("added_at", { ascending: true });
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+      setAdmins([]);
+    } else {
+      setAdmins(data ?? []);
+    }
+    setLoading(false);
+  }, [showMessage]);
+
+  useEffect(() => { loadAdmins(); }, [loadAdmins]);
+
+  async function addAdmin(event) {
+    event.preventDefault();
+    const email = newEmail.trim().toLowerCase();
+    if (!email) { showMessage("error", "Please enter an email address."); return; }
+    if (admins.some((admin) => admin.email.toLowerCase() === email)) {
+      showMessage("error", "This email is already an admin.");
+      return;
+    }
+    setBusy(true);
+    // role is always "admin" here — only the owner row (set once, directly in the
+    // database) can hold role "owner", and that row can never be created or
+    // removed from this screen.
+    const { error } = await supabase.from("admins").insert({ email, role: "admin" });
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+    } else {
+      setNewEmail("");
+      await loadAdmins();
+      showMessage("success", `${email} can now sign in as an admin.`);
+    }
+    setBusy(false);
+  }
+
+  async function removeAdmin(admin) {
+    if (admin.role === "owner") return; // guarded in the UI and by RLS
+    if (!window.confirm(`Remove admin access for "${admin.email}"?`)) return;
+    setBusy(true);
+    const { error } = await supabase.from("admins").delete().eq("email", admin.email);
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+    } else {
+      await loadAdmins();
+      showMessage("success", `${admin.email} removed.`);
+    }
+    setBusy(false);
+  }
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel breadcrumb={["Admins"]} message={message} kicker="Access control" title="Manage admins" />
+      <AdminPanel
+        title="Add an admin"
+        description="Anyone added here can sign in with that Google account and reach this dashboard."
+      >
+        <form onSubmit={addAdmin} className="grid gap-3 sm:max-w-md">
+          <TextField
+            label="Admin email"
+            type="email"
+            value={newEmail}
+            onChange={setNewEmail}
+            placeholder="teammate@gmail.com"
+          />
+          <button
+            type="submit"
+            disabled={busy}
+            className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? "Adding..." : "+ Add Admin"}
+          </button>
+        </form>
+      </AdminPanel>
+
+      <AdminPanel title="Current admins" description="The owner account cannot be removed from here.">
+        {loading ? (
+          <LoadingRows />
+        ) : admins.length === 0 ? (
+          <EmptyPrompt text="No admins found." />
+        ) : (
+          <ul className="grid gap-2">
+            {admins.map((admin) => {
+              const isOwner = admin.role === "owner";
+              const isSelf = admin.email.toLowerCase() === user?.email?.toLowerCase();
+              return (
+                <li
+                  key={admin.email}
+                  className="flex flex-col gap-2 rounded-card border border-slate-800 bg-slate-950/80 p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">
+                      {admin.email} {isSelf && <span className="text-slate-500">(you)</span>}
+                    </p>
+                    <span
+                      className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${isOwner ? "bg-amber-300/15 text-amber-200" : "bg-cyan-300/10 text-cyan-200"
+                        }`}
+                    >
+                      {isOwner ? "Owner" : "Admin"}
+                    </span>
+                  </div>
+                  <IconButton
+                    danger
+                    disabled={isOwner || busy}
+                    label={isOwner ? "The owner cannot be removed" : "Remove admin"}
+                    onClick={() => removeAdmin(admin)}
+                  >
+                    {isOwner ? "Protected" : "Remove"}
+                  </IconButton>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </AdminPanel>
+    </section>
+  );
+}
+
 function HeaderPanel({ breadcrumb, kicker, message, title }) {
   return (
-    <div className="rounded-card border border-slate-800 bg-slate-900 p-5">
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-2xl shadow-slate-950/20 sm:p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-sm font-semibold text-cyan-200">{kicker}</p>
@@ -940,8 +1309,8 @@ function HeaderPanel({ breadcrumb, kicker, message, title }) {
 
 function AdminPanel({ children, description, title }) {
   return (
-    <section className="rounded-card border border-slate-800 bg-slate-900 p-5">
-      <div className="min-h-20">
+    <section className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-xl shadow-slate-950/20 sm:p-5">
+      <div className="mb-4">
         <h3 className="font-display text-xl font-bold text-white">{title}</h3>
         <p className="mt-1 text-sm leading-6 text-slate-400">{description}</p>
       </div>
@@ -963,7 +1332,9 @@ function TrackForm({ busy, editing, form, onCancel, onChange, onSubmit }) {
 function BoxForm({ busy, editing, form, onCancel, onChange, onSubmit }) {
   return (
     <form onSubmit={onSubmit} className="grid gap-3">
-      <TextField label="Box name" value={form.label} onChange={(label) => onChange({ label })} placeholder="Semester 1" />
+      <TextField label="Box name" value={form.label} onChange={(label) => onChange({ ...form, label })} placeholder="Semester 1" />
+      <TextField label="Direct link (optional)" type="url" value={form.link} onChange={(link) => onChange({ ...form, link })} placeholder="https://drive.google.com/..." />
+      <p className="text-xs text-slate-500 -mt-1">If set, clicking this box opens the link directly instead of showing courses.</p>
       <FormActions busy={busy} editing={editing} createLabel="+ Add Box" saveLabel="Save Box" onCancel={onCancel} />
     </form>
   );
@@ -975,6 +1346,8 @@ function CourseForm({ busy, editing, form, onCancel, onChange, onSubmit }) {
       <TextField label="Course name" value={form.name} onChange={(name) => onChange({ ...form, name })} placeholder="General Chemistry" />
       <TextField label="Course code" value={form.code} onChange={(code) => onChange({ ...form, code })} placeholder="CHEM 101" />
       <TextField label="Instructor (optional)" value={form.instructor} onChange={(instructor) => onChange({ ...form, instructor })} placeholder="Dr. Name" />
+      <TextField label="Direct link (optional)" type="url" value={form.link} onChange={(link) => onChange({ ...form, link })} placeholder="https://drive.google.com/..." />
+      <p className="text-xs text-slate-500 -mt-1">If set, clicking this course opens the link directly instead of showing resource links.</p>
       <FormActions busy={busy} editing={editing} createLabel="+ Add Course" saveLabel="Save Course" onCancel={onCancel} />
     </form>
   );
@@ -1040,7 +1413,7 @@ function TextField({ label, onChange, placeholder, type = "text", value }) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="mt-1 min-h-11 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-cyan-300"
+        className="mt-1 min-h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-cyan-300"
       />
     </label>
   );
@@ -1054,7 +1427,7 @@ function TextareaField({ label, onChange, value }) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={4}
-        className="mt-1 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
+        className="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
       />
     </label>
   );
@@ -1062,11 +1435,11 @@ function TextareaField({ label, onChange, value }) {
 
 function FormActions({ busy, createLabel, editing, onCancel, saveLabel }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <button
         type="submit"
         disabled={busy}
-        className="min-h-11 rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-11 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy ? "Saving..." : editing ? saveLabel : createLabel}
       </button>
@@ -1074,10 +1447,89 @@ function FormActions({ busy, createLabel, editing, onCancel, saveLabel }) {
         <button
           type="button"
           onClick={onCancel}
-          className="min-h-11 rounded-card border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300"
+          className="min-h-11 rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-cyan-300"
         >
           Cancel
         </button>
+      )}
+    </div>
+  );
+}
+
+function CourseCardList({
+  courses,
+  emptyText,
+  onDelete,
+  onEdit,
+  onMoveDown,
+  onMoveUp,
+  onSelect,
+  selectedId,
+}) {
+  if (courses.length === 0) return <EmptyPrompt text={emptyText} />;
+  const [query, setQuery] = useState("");
+  const visibleCourses = query
+    ? courses.filter((course) =>
+      [course.name, course.code, course.instructor]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query.toLowerCase())
+    )
+    : courses;
+
+  return (
+    <div className="grid gap-3">
+      {courses.length > 6 && (
+        <TextField label="Search courses" value={query} onChange={setQuery} placeholder="Search by name, code, or instructor" />
+      )}
+      {visibleCourses.length === 0 ? (
+        <EmptyPrompt text="No courses match this search." />
+      ) : (
+        <div className="grid max-h-[34rem] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+          {visibleCourses.map((course) => {
+            const index = courses.findIndex((item) => item.id === course.id);
+            const selected = selectedId === course.id;
+
+            return (
+              <article
+                key={course.id}
+                className={`rounded-card border p-4 transition ${selected
+                    ? "border-cyan-300 bg-cyan-300/10 shadow-lg shadow-cyan-950/30"
+                    : "border-slate-800 bg-slate-950/80 hover:border-cyan-300/70"
+                  }`}
+              >
+                <button type="button" onClick={() => onSelect(course)} className="block w-full text-left">
+                  <div className="flex min-h-20 flex-col justify-between gap-3">
+                    <div>
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        {course.code && (
+                          <span className="rounded-card border border-cyan-300/30 bg-cyan-300/10 px-2 py-1 text-xs font-bold uppercase tracking-wide text-cyan-100">
+                            {course.code}
+                          </span>
+                        )}
+                        {course.link && (
+                          <span className="rounded-card border border-emerald-300/30 bg-emerald-300/10 px-2 py-1 text-xs font-semibold text-emerald-100">
+                            Direct link
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="line-clamp-2 text-base font-bold text-white">{course.name}</h4>
+                    </div>
+                    {course.instructor && <p className="line-clamp-1 text-sm text-slate-400">{course.instructor}</p>}
+                  </div>
+                </button>
+
+                <div className="mt-4 flex flex-wrap gap-1 border-t border-slate-800 pt-3">
+                  <IconButton disabled={index === 0} label="Move up" onClick={() => onMoveUp?.(course)}>Up</IconButton>
+                  <IconButton disabled={index === courses.length - 1} label="Move down" onClick={() => onMoveDown?.(course)}>Down</IconButton>
+                  <IconButton label="Edit" onClick={() => onEdit?.(course)}>Edit</IconButton>
+                  <IconButton danger label="Delete" onClick={() => onDelete?.(course)}>Delete</IconButton>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       )}
     </div>
   );
@@ -1097,40 +1549,60 @@ function AdminList({
   selectedId,
 }) {
   if (rows.length === 0) return <EmptyPrompt text={emptyText} />;
+  const [query, setQuery] = useState("");
+  const visibleRows = query
+    ? rows.filter((row) =>
+      [getTitle(row), getSubtitle?.(row)]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query.toLowerCase())
+    )
+    : rows;
 
   return (
-    <ul className="grid gap-2">
-      {rows.map((row, index) => {
-        const title = getTitle(row);
-        const subtitle = getSubtitle?.(row);
-        const selected = selectedId === row.id;
+    <div className="grid gap-3">
+      {rows.length > 6 && (
+        <TextField label="Search this list" value={query} onChange={setQuery} placeholder="Type to filter..." />
+      )}
+      {visibleRows.length === 0 ? (
+        <EmptyPrompt text="No items match this search." />
+      ) : (
+        <ul className="grid max-h-[28rem] gap-2 overflow-y-auto pr-1">
+          {visibleRows.map((row) => {
+            const index = rows.findIndex((item) => item.id === row.id);
+            const title = getTitle(row);
+            const subtitle = getSubtitle?.(row);
+            const selected = selectedId === row.id;
 
-        return (
-          <li
-            key={row.id}
-            className={`rounded-card border p-3 transition ${selected ? "border-cyan-300 bg-cyan-300/10" : "border-slate-800 bg-slate-950/80"}`}
-          >
-            <div className="flex gap-3">
-              {onSelect ? (
-                <button type="button" onClick={() => onSelect(row)} className="min-w-0 flex-1 text-left">
-                  <RowText title={title} subtitle={subtitle} />
-                </button>
-              ) : (
-                <div className="min-w-0 flex-1">
-                  <RowText title={title} subtitle={subtitle} />
+            return (
+              <li
+                key={row.id}
+                className={`rounded-card border p-3 transition ${selected ? "border-cyan-300 bg-cyan-300/10" : "border-slate-800 bg-slate-950/80"}`}
+              >
+                <div className="flex gap-3">
+                  {onSelect ? (
+                    <button type="button" onClick={() => onSelect(row)} className="min-w-0 flex-1 text-left">
+                      <RowText title={title} subtitle={subtitle} />
+                    </button>
+                  ) : (
+                    <div className="min-w-0 flex-1">
+                      <RowText title={title} subtitle={subtitle} />
+                    </div>
+                  )}
+                  <div className="flex shrink-0 flex-wrap justify-end gap-1">
+                    <IconButton disabled={index === 0} label="Move up" onClick={() => onMoveUp?.(row)}>Up</IconButton>
+                    <IconButton disabled={index === rows.length - 1} label="Move down" onClick={() => onMoveDown?.(row)}>Down</IconButton>
+                    <IconButton label={editLabel} onClick={() => onEdit?.(row)}>{editLabel}</IconButton>
+                    <IconButton danger label="Delete" onClick={() => onDelete?.(row)}>Delete</IconButton>
+                  </div>
                 </div>
-              )}
-              <div className="flex shrink-0 flex-wrap justify-end gap-1">
-                <IconButton disabled={index === 0} label="Move up" onClick={() => onMoveUp?.(row)}>Up</IconButton>
-                <IconButton disabled={index === rows.length - 1} label="Move down" onClick={() => onMoveDown?.(row)}>Down</IconButton>
-                <IconButton label={editLabel} onClick={() => onEdit?.(row)}>{editLabel}</IconButton>
-                <IconButton danger label="Delete" onClick={() => onDelete?.(row)}>Delete</IconButton>
-              </div>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -1151,9 +1623,8 @@ function IconButton({ children, danger = false, disabled, label, onClick }) {
       title={label}
       disabled={disabled}
       onClick={onClick}
-      className={`min-h-9 rounded-card border px-2 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-35 ${
-        danger ? "border-red-400/40 text-red-200 hover:bg-red-950/60" : "border-slate-700 text-slate-200 hover:border-cyan-300 hover:text-cyan-100"
-      }`}
+      className={`min-h-9 rounded-card border px-2 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-35 ${danger ? "border-red-400/40 text-red-200 hover:bg-red-950/60" : "border-slate-700 text-slate-200 hover:border-cyan-300 hover:text-cyan-100"
+        }`}
     >
       {children}
     </button>

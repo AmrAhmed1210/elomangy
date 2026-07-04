@@ -17,6 +17,7 @@ import SessionDetail from "./pages/SessionDetail";
 import CategoryDetail from "./pages/CategoryDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import BoxDetail from "./pages/BoxDetail";
 
 function App() {
   return (
@@ -41,8 +42,10 @@ function App() {
               <Route path="/materials" element={<Materials />} />
               <Route path="/materials/year/:year" element={<YearDetail />} />
               <Route path="/materials/year/:year/:trackSlug" element={<TrackYearDetail />} />
+              <Route path="/materials/year/:year/semester/:semesterId" element={<SemesterDetail />} />
               <Route path="/materials/year/:year/:trackSlug/semester/:semesterId" element={<SemesterDetail />} />
               <Route path="/materials/course/:courseId" element={<CourseDetail />} />
+              <Route path="/materials/box/:boxId" element={<BoxDetail />} />
               <Route path="/diplomas" element={<Diplomas />} />
               <Route path="/diplomas/:slug" element={<DiplomaDetail />} />
               <Route path="/training-sessions" element={<TrainingSessions />} />

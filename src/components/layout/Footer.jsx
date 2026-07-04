@@ -30,7 +30,7 @@ export default function Footer() {
                 { to: "/diplomas", label: "Diplomas" },
                 { to: "/training-sessions", label: "Training Sessions" },
                 { to: "/about", label: "About FSCU" },
-                { to: isAdmin ? "/admin" : "/admin/login", label: isAdmin ? "Admin dashboard" : "Admin login" },
+                ...(isAdmin ? [{ to: "/admin", label: "Admin dashboard" }] : []),
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link to={to} className="text-chalkboard-light hover:text-lab-teal transition-colors">

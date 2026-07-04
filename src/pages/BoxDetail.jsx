@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
@@ -13,15 +13,15 @@ const TYPE_CONFIG = {
 };
 
 const COLOR_MAP = {
-  "accent-blue": { bg: "bg-accent-blue/10", text: "text-accent-blue", border: "border-accent-blue/20", hoverBg: "hover:bg-accent-blue", ring: "hover:ring-accent-blue/20" },
-  "periodic-orange": { bg: "bg-periodic-orange/10", text: "text-periodic-orange", border: "border-periodic-orange/20", hoverBg: "hover:bg-periodic-orange", ring: "hover:ring-periodic-orange/20" },
-  "answer-green": { bg: "bg-answer-green/10", text: "text-answer-green", border: "border-answer-green/20", hoverBg: "hover:bg-answer-green", ring: "hover:ring-answer-green/20" },
-  "accent-purple": { bg: "bg-accent-purple/10", text: "text-accent-purple", border: "border-accent-purple/20", hoverBg: "hover:bg-accent-purple", ring: "hover:ring-accent-purple/20" },
+  "accent-blue": { bg: "bg-accent-blue/10", text: "text-accent-blue", ring: "hover:ring-accent-blue/20" },
+  "periodic-orange": { bg: "bg-periodic-orange/10", text: "text-periodic-orange", ring: "hover:ring-periodic-orange/20" },
+  "answer-green": { bg: "bg-answer-green/10", text: "text-answer-green", ring: "hover:ring-answer-green/20" },
+  "accent-purple": { bg: "bg-accent-purple/10", text: "text-accent-purple", ring: "hover:ring-accent-purple/20" },
 };
 
-export default function CourseDetail() {
-  const { courseId } = useParams();
-  const [course, setCourse] = useState(null);
+export default function BoxDetail() {
+  const { boxId } = useParams();
+  const [box, setBox] = useState(null);
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,25 +29,25 @@ export default function CourseDetail() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: courseData, error: courseError } = await supabase
-          .from('courses')
-          .select('*')
-          .eq('id', courseId)
+        const { data: boxData, error: boxError } = await supabase
+          .from("dashboard_boxes")
+          .select("*")
+          .eq("id", boxId)
           .single();
 
-        if (courseError || !courseData) {
-          setError("Course not found");
+        if (boxError || !boxData) {
+          setError("Box not found");
           setLoading(false);
           return;
         }
-        setCourse(courseData);
+        setBox(boxData);
 
         const { data: linksData, error: linksError } = await supabase
-          .from('resource_links')
-          .select('*')
-          .eq('parent_type', 'course')
-          .eq('parent_id', courseId)
-          .order('order');
+          .from("resource_links")
+          .select("*")
+          .eq("parent_type", "dashboard_box")
+          .eq("parent_id", boxId)
+          .order("order");
 
         if (linksError) throw linksError;
         setLinks(linksData || []);
@@ -58,7 +58,7 @@ export default function CourseDetail() {
       }
     }
     fetchData();
-  }, [courseId]);
+  }, [boxId]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -85,17 +85,16 @@ export default function CourseDetail() {
   return (
     <PageLayout>
       <PageHeader
-        badge={course.code}
-        title={course.name}
-        subtitle={course.instructor ? `Instructor: ${course.instructor}` : undefined}
+        badge={box.title_ar || box.title}
+        title={box.title}
+        subtitle={box.description}
         breadcrumbs={[
           { to: "/", label: "Home" },
           { to: "/materials", label: "Materials" },
-          { label: `${course.code} — ${course.name}` },
+          { label: box.title },
         ]}
       />
 
-      {/* Resource Cards Grid */}
       {links.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-graph-grid rounded-2xl bg-white/40 backdrop-blur-sm">
           <div className="w-14 h-14 bg-graph-grid/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -103,7 +102,7 @@ export default function CourseDetail() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
-          <p className="text-chalkboard-light font-medium text-lg">No materials yet</p>
+          <p className="text-chalkboard-light font-medium text-lg">No content yet</p>
           <p className="text-sm text-chalkboard-light/70 mt-2">Check back later or contact the team</p>
         </div>
       ) : (
@@ -120,11 +119,9 @@ export default function CourseDetail() {
                 rel="noopener noreferrer"
                 className={`stagger-${Math.min(i + 1, 8)} group relative bg-white/80 backdrop-blur-sm border border-graph-grid/80 rounded-2xl p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-400 transform hover:-translate-y-1 overflow-hidden ring-1 ring-transparent ${colors.ring}`}
               >
-                {/* Top accent line */}
-                <div className={`absolute top-0 left-0 right-0 h-0.5 ${colors.bg} opacity-60 group-hover:opacity-100 transition-opacity`} style={{ background: `var(--color-${typeInfo.color})` }} />
+                <div className={`absolute top-0 left-0 right-0 h-0.5 ${colors.bg} opacity-60 group-hover:opacity-100 transition-opacity`} />
 
                 <div className="flex items-start gap-4">
-                  {/* Type icon */}
                   <div className={`shrink-0 w-11 h-11 ${colors.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
                     <svg className={`w-5 h-5 ${colors.text}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={typeInfo.icon} />
@@ -138,7 +135,6 @@ export default function CourseDetail() {
                     </span>
                   </div>
 
-                  {/* Open icon */}
                   <div className="shrink-0 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-lab-teal transition-colors">
                     <svg className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

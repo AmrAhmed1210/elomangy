@@ -1,101 +1,117 @@
 import { Link } from "react-router-dom";
+import CardBubbles from "./CardBubbles";
 
-// Shared Card component for consistent styling across Materials and Diplomas
-// Used by: YearCard, TrackCard, SemesterCard, CourseCard, DiplomaCard
-export default function Card({ 
-  to, 
-  title, 
-  subtitle, 
-  badge, 
-  icon, 
+// Shared Card component — one visual language used everywhere on the site
+// (Materials years, Dashboard boxes, Diplomas, Training Sessions, Categories):
+// a thin gradient top edge, a small colored icon chip, a pill badge, a title,
+// a subtitle, playful colored bubbles in the background, and a footer link
+// that becomes more visible on hover.
+export default function Card({
+  to,
+  externalLink,
+  title,
+  subtitle,
+  badge,
+  icon,
   iconColor = "lab-teal",
   hoverColor = "lab-teal",
   children,
-  className = ""
+  className = "",
 }) {
-  const colorClasses = {
-    "lab-teal": {
-      bg: "from-lab-teal to-lab-teal-dark",
-      bgLight: "from-lab-teal/5 to-lab-teal/10",
-      text: "text-lab-teal",
-      border: "border-lab-teal/30",
-      tagBg: "bg-lab-teal/10",
-      tagText: "text-lab-teal",
-      glow: "hover:shadow-lab-teal/20"
-    },
-    "answer-green": {
-      bg: "from-answer-green to-answer-green/80",
-      bgLight: "from-answer-green/5 to-answer-green/10",
-      text: "text-answer-green",
-      border: "border-answer-green/30",
-      tagBg: "bg-answer-green/10",
-      tagText: "text-answer-green",
-      glow: "hover:shadow-answer-green/20"
-    },
-    "periodic-orange": {
-      bg: "from-periodic-orange to-periodic-orange-dark",
-      bgLight: "from-periodic-orange/5 to-periodic-orange/10",
-      text: "text-periodic-orange",
-      border: "border-periodic-orange/30",
-      tagBg: "bg-periodic-orange/10",
-      tagText: "text-periodic-orange",
-      glow: "hover:shadow-periodic-orange/20"
-    },
-    "lab-teal-light": {
-      bg: "from-lab-teal-light to-lab-teal",
-      bgLight: "from-lab-teal-light/5 to-lab-teal-light/10",
-      text: "text-lab-teal-light",
-      border: "border-lab-teal-light/30",
-      tagBg: "bg-lab-teal-light/10",
-      tagText: "text-lab-teal-light",
-      glow: "hover:shadow-lab-teal-light/20"
-    }
+  const palette = {
+    "lab-teal": { from: "from-lab-teal", to: "to-lab-teal-light", text: "text-lab-teal", border: "border-lab-teal/20", bg: "bg-lab-teal/10", raw: "var(--color-lab-teal)" },
+    "answer-green": { from: "from-answer-green", to: "to-lab-teal-light", text: "text-answer-green", border: "border-answer-green/20", bg: "bg-answer-green/10", raw: "var(--color-answer-green)" },
+    "periodic-orange": { from: "from-periodic-orange", to: "to-periodic-orange-dark", text: "text-periodic-orange", border: "border-periodic-orange/20", bg: "bg-periodic-orange/10", raw: "var(--color-periodic-orange)" },
+    "lab-teal-light": { from: "from-lab-teal-light", to: "to-lab-teal", text: "text-lab-teal-light", border: "border-lab-teal-light/20", bg: "bg-lab-teal-light/10", raw: "var(--color-lab-teal-light)" },
+    "accent-purple": { from: "from-accent-purple", to: "to-lab-teal-light", text: "text-accent-purple", border: "border-accent-purple/20", bg: "bg-accent-purple/10", raw: "var(--color-accent-purple)" },
+    "accent-blue": { from: "from-accent-blue", to: "to-lab-teal-light", text: "text-accent-blue", border: "border-accent-blue/20", bg: "bg-accent-blue/10", raw: "var(--color-accent-blue)" },
   };
 
-  const colors = colorClasses[hoverColor] || colorClasses["lab-teal"];
+  const colors = palette[hoverColor] || palette["lab-teal"];
+  const iconColors = palette[iconColor] || colors;
+  const isExternal = Boolean(externalLink);
+  const linkTarget = externalLink || to;
 
-  const cardContent = (
-    <div className="group relative bg-gradient-to-br from-white to-specimen-bg border border-graph-grid rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] overflow-hidden">
-      {/* Specimen tag-style icon */}
-      {icon && (
-        <div className={`absolute top-4 right-4 ${colors.tagBg} ${colors.border} border-2 rounded-sm px-3 py-1.5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-          <div className={`w-6 h-6 ${colors.tagText}`}>{icon}</div>
-        </div>
-      )}
-      
-      {/* Hover glow effect */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${colors.bgLight} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}></div>
-      
-      <div className="relative z-10">
+  const content = (
+    <article className="group relative flex h-full min-h-[210px] flex-col overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-soft)] backdrop-blur-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[var(--shadow-lift)] group-active:translate-y-0">
+      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${colors.from} ${colors.to}`} />
+      <CardBubbles color={colors.raw} />
+
+      <div className="relative z-10 flex h-full flex-col">
+        <div className="mb-5 flex items-start justify-between gap-3">
         {badge && (
-          <div className={`inline-block mb-3 px-2 py-1 ${colors.tagBg} ${colors.tagText} text-xs font-mono font-mono-smallcaps border ${colors.border} rounded-sm`}>
+          <span className={`inline-flex max-w-[calc(100%-3rem)] truncate rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide ${iconColors.border} ${iconColors.bg} ${iconColors.text}`}>
             {badge}
-          </div>
+          </span>
         )}
-        
-        <h3 className={`font-display font-bold text-2xl text-chalkboard mb-3 group-hover:${colors.text} transition-colors group-hover:scale-105 transform origin-left duration-300`}>{title}</h3>
-        
-        {subtitle && (
-          <p className="text-chalkboard-light font-medium text-lg mb-6 group-hover:text-chalkboard transition-colors">{subtitle}</p>
+        {icon && (
+          <span className={`ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${iconColors.border} ${iconColors.bg} ${iconColors.text}`}>
+            {icon}
+          </span>
         )}
-        
-        {children}
-        
-        {to && (
-          <div className={`flex items-center ${colors.text} font-medium opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0 mt-4`}>
-            <span>View Details</span>
-            <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        {isExternal && !badge && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white/80 px-2 py-1 text-xs text-slate-500">
+            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-          </div>
+            رابط مباشر
+          </span>
         )}
       </div>
-    </div>
+
+      <h3 className="font-display text-2xl font-bold leading-tight text-chalkboard transition-colors group-hover:text-[var(--card-hover-color)]">
+        {title}
+      </h3>
+
+      {subtitle && (
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-chalkboard-light">{subtitle}</p>
+      )}
+
+      {children}
+
+      {linkTarget && (
+        <div className={`mt-auto flex items-center gap-2 pt-6 text-sm font-bold ${colors.text}`}>
+          <span>{isExternal ? "فتح الرابط" : "عرض التفاصيل"}</span>
+          <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {isExternal ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            )}
+          </svg>
+        </div>
+      )}
+      </div>
+    </article>
   );
 
-  if (to) {
-    return <Link to={to} className={className}>{cardContent}</Link>;
+  const hoverTextVar = { "--card-hover-color": `var(--color-${hoverColor})` };
+
+  if (isExternal) {
+    return (
+      <a
+        href={externalLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={hoverTextVar}
+        className={`group block h-full rounded-2xl focus-visible:ring-4 focus-visible:ring-lab-teal/20 ${className}`}
+      >
+        {content}
+      </a>
+    );
   }
 
-  return <div className={className}>{cardContent}</div>;
+  if (to) {
+    return (
+      <Link to={to} style={hoverTextVar} className={`group block h-full rounded-2xl focus-visible:ring-4 focus-visible:ring-lab-teal/20 ${className}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div style={hoverTextVar} className={`h-full ${className}`}>
+      {content}
+    </div>
+  );
 }

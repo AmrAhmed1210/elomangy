@@ -19,7 +19,7 @@ export default function About() {
         breadcrumbs={[{ to: "/", label: "Home" }, { label: "About" }]}
       />
 
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6">
         <div className="glass-card p-6 sm:p-8 border-l-4 border-l-lab-teal">
           <h3 className="font-display font-semibold text-xl text-chalkboard mb-3">What is 3loomangy?</h3>
           <p className="text-chalkboard-light leading-relaxed">

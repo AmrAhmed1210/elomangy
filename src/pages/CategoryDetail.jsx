@@ -77,7 +77,7 @@ export default function CategoryDetail() {
             <span className="text-lab-teal">Loading...</span>
           </nav>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="centered-card-grid">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <LoadingSkeleton key={i} type="video" />
             ))}
@@ -148,7 +148,7 @@ export default function CategoryDetail() {
             description="Videos will appear here once they are added."
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="centered-card-grid">
             {videos.map((video) => (
               <VideoCard key={video.id} video={video} />
             ))}
