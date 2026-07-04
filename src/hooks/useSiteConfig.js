@@ -8,6 +8,7 @@ const DEFAULTS = {
   linkedinUrl: "https://linkedin.com/company/3loomangy",
   whatsappChannelUrl: "",
   aboutFscuContent: "",
+  extraLinks: [],
 };
 
 export default function useSiteConfig() {
@@ -17,12 +18,12 @@ export default function useSiteConfig() {
   useEffect(() => {
     async function load() {
       try {
-        const { data, error } = await supabase
-          .from('site_config')
-          .select('*')
-          .eq('id', 1)
-          .single();
-        
+        const [configResult, linksResult] = await Promise.all([
+          supabase.from('site_config').select('*').eq('id', 1).single(),
+          supabase.from('social_links').select('*').order('order', { ascending: true }),
+        ]);
+        const { data, error } = configResult;
+
         if (data && !error) {
           setConfig({
             whatsappNumber: data.whatsapp_number || DEFAULTS.whatsappNumber,
@@ -31,6 +32,7 @@ export default function useSiteConfig() {
             linkedinUrl: data.linkedin_url || DEFAULTS.linkedinUrl,
             whatsappChannelUrl: data.whatsapp_channel_url || DEFAULTS.whatsappChannelUrl,
             aboutFscuContent: data.about_fscu_content || DEFAULTS.aboutFscuContent,
+            extraLinks: linksResult.data ?? [],
           });
         }
       } catch {

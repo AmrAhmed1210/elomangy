@@ -5,12 +5,14 @@ export default function PageHeader({ badge, badgeColor = "lab-teal", title, subt
     "lab-teal": "bg-lab-teal/10 border-lab-teal/20 text-lab-teal",
     "answer-green": "bg-answer-green/10 border-answer-green/20 text-answer-green",
     "periodic-orange": "bg-periodic-orange/10 border-periodic-orange/20 text-periodic-orange",
+    "accent-purple": "bg-accent-purple/10 border-accent-purple/20 text-accent-purple",
   };
 
   const gradientColors = {
     "lab-teal": "from-lab-teal via-lab-teal-light to-answer-green",
     "answer-green": "from-answer-green via-lab-teal to-lab-teal-light",
     "periodic-orange": "from-periodic-orange via-lab-teal to-answer-green",
+    "accent-purple": "from-accent-purple via-lab-teal to-answer-green",
   };
 
   return (

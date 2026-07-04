@@ -14,6 +14,10 @@ const ADMIN_TABS = [
   ...YEAR_TABS,
   { key: "diplomas", label: "Diplomas" },
   { key: "training", label: "Training" },
+  { key: "team", label: "Team Work" },
+  { key: "join-requests", label: "Join Requests" },
+  { key: "sections", label: "Special Sections" },
+  { key: "contact", label: "Contact & Links" },
   { key: "about", label: "About FSCU" },
   { key: "admins", label: "Admins" },
 ];
@@ -33,6 +37,12 @@ const emptyLink = { label: "", type: "drive_folder", url: "" };
 const emptyDiploma = { name: "", name_ar: "", description: "", eligibility: "" };
 const emptyTraining = { title: "", description: "", videoUrl: "" };
 const emptyDashboardBox = { title: "", title_ar: "", description: "", link: "" };
+const emptyProject = { title: "", description: "", cover_image_url: "", link: "", date: "" };
+const emptyEvent = { title: "", description: "", date: "", location: "", register_link: "", image_url: "", is_past: false, registration_open: true, registration_message: "" };
+const emptyService = { title: "", description: "", contact_link: "" };
+const emptySection = { name_en: "", name_ar: "", slug: "" };
+const emptySocialLink = { label: "", url: "" };
+const emptyContact = { whatsapp_number: "", facebook_url: "", youtube_url: "", linkedin_url: "", whatsapp_channel_url: "" };
 
 export default function AdminDashboard() {
   const { signOut, user } = useAuth();
@@ -84,6 +94,10 @@ export default function AdminDashboard() {
         {activeYear && <YearContentManager key={activeYear.key} year={activeYear.year} title={activeYear.label} />}
         {activeTab === "diplomas" && <DiplomasManager />}
         {activeTab === "training" && <TrainingManager />}
+        {activeTab === "team" && <TeamWorkManager />}
+        {activeTab === "join-requests" && <JoinRequestsManager />}
+        {activeTab === "sections" && <SpecialSectionsManager />}
+        {activeTab === "contact" && <ContactManager />}
         {activeTab === "about" && <AboutManager />}
         {activeTab === "admins" && <AdminsManager />}
       </div>
@@ -1152,6 +1166,673 @@ function AboutManager() {
           </button>
         </form>
       </AdminPanel>
+    </section>
+  );
+}
+
+const TEAM_SUBTABS = [
+  { key: "events", label: "Events" },
+  { key: "services", label: "Services" },
+];
+
+function TeamWorkManager() {
+  const [activeSubTab, setActiveSubTab] = useState("events");
+  const [events, setEvents] = useState([]);
+  const [services, setServices] = useState([]);
+  const [eventNowId, setEventNowId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [eventForm, setEventForm] = useState(emptyEvent);
+  const [serviceForm, setServiceForm] = useState(emptyService);
+  const [editingEventId, setEditingEventId] = useState("");
+  const [editingServiceId, setEditingServiceId] = useState("");
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+
+  const loadEvents = useCallback(async () => {
+    const { data, error } = await supabase.from("team_events").select("*").order("date", { ascending: false });
+    if (error) showMessage("error", friendlyError(error.message));
+    else setEvents(data ?? []);
+  }, [showMessage]);
+
+  const loadServices = useCallback(async () => {
+    const { data, error } = await supabase.from("team_services").select("*").order("order");
+    if (error) showMessage("error", friendlyError(error.message));
+    else setServices(data ?? []);
+  }, [showMessage]);
+
+  const loadEventNow = useCallback(async () => {
+    const { data } = await supabase.from("site_config").select("event_now_id").eq("id", 1).single();
+    if (data?.event_now_id) setEventNowId(data.event_now_id);
+  }, []);
+
+  useEffect(() => {
+    Promise.all([loadEvents(), loadServices(), loadEventNow()]).finally(() => setLoading(false));
+  }, [loadEvents, loadServices, loadEventNow]);
+
+  async function saveEvent(event) {
+    event.preventDefault();
+    const title = eventForm.title.trim();
+    if (!title) { showMessage("error", "Please enter an event title."); return; }
+    setBusy(true);
+    const payload = {
+      title,
+      description: eventForm.description.trim() || null,
+      date: eventForm.date || null,
+      location: eventForm.location.trim() || null,
+      register_link: eventForm.register_link.trim() || null,
+      image_url: eventForm.image_url.trim() || null,
+      is_past: eventForm.is_past,
+      registration_open: eventForm.registration_open,
+      registration_message: eventForm.registration_message.trim() || null,
+    };
+    const request = editingEventId
+      ? supabase.from("team_events").update(payload).eq("id", editingEventId)
+      : supabase.from("team_events").insert(payload);
+    const { error } = await request;
+    if (error) showMessage("error", friendlyError(error.message));
+    else {
+      setEventForm(emptyEvent);
+      setEditingEventId("");
+      await loadEvents();
+      showMessage("success", editingEventId ? "Event updated." : "Event added.");
+    }
+    setBusy(false);
+  }
+
+  async function saveService(event) {
+    event.preventDefault();
+    const title = serviceForm.title.trim();
+    if (!title) { showMessage("error", "Please enter a service title."); return; }
+    setBusy(true);
+    const payload = {
+      title,
+      description: serviceForm.description.trim() || null,
+      contact_link: serviceForm.contact_link.trim() || null,
+    };
+    const request = editingServiceId
+      ? supabase.from("team_services").update(payload).eq("id", editingServiceId)
+      : supabase.from("team_services").insert({ ...payload, order: services.length });
+    const { error } = await request;
+    if (error) showMessage("error", friendlyError(error.message));
+    else {
+      setServiceForm(emptyService);
+      setEditingServiceId("");
+      await loadServices();
+      showMessage("success", editingServiceId ? "Service updated." : "Service added.");
+    }
+    setBusy(false);
+  }
+
+  async function saveEventNow(event) {
+    event.preventDefault();
+    setBusy(true);
+    const { error } = await supabase.from("site_config").update({ event_now_id: eventNowId || null }).eq("id", 1);
+    if (error) showMessage("error", friendlyError(error.message));
+    else showMessage("success", "Event Now updated.");
+    setBusy(false);
+  }
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel breadcrumb={["Team Work"]} message={message} kicker="Team content" title="Manage team events and services" />
+      
+      {/* Event Now Control */}
+      <AdminPanel title="Event Now" description="Select the current event to highlight on the Team page.">
+        <form onSubmit={saveEventNow} className="grid gap-3">
+          <label>
+            <span className="text-sm font-medium text-slate-300">Select Event</span>
+            <select
+              value={eventNowId}
+              onChange={(e) => setEventNowId(e.target.value)}
+              className="mt-1 min-h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-cyan-300"
+            >
+              <option value="">None</option>
+              {events.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.title} {e.date ? `(${new Date(e.date).toLocaleDateString()})` : ""}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="submit"
+            disabled={busy}
+            className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? "Saving..." : "Set Event Now"}
+          </button>
+        </form>
+      </AdminPanel>
+      
+      {/* Sub-tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {TEAM_SUBTABS.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => setActiveSubTab(tab.key)}
+            className={`min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+              activeSubTab === tab.key
+                ? "bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-950/40"
+                : "border border-slate-800 bg-slate-900 text-slate-200 hover:border-cyan-300 hover:text-cyan-100"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeSubTab === "events" && (
+        <AdminPanel title="Events" description="Add, edit, and manage team events.">
+          <form onSubmit={saveEvent} className="grid gap-3">
+            <TextField label="Event title" value={eventForm.title} onChange={(title) => setEventForm({ ...eventForm, title })} placeholder="Event name" />
+            <TextareaField label="Description (optional)" value={eventForm.description} onChange={(description) => setEventForm({ ...eventForm, description })} />
+            <TextField label="Date" type="date" value={eventForm.date} onChange={(date) => setEventForm({ ...eventForm, date })} />
+            <TextField label="Location (optional)" value={eventForm.location} onChange={(location) => setEventForm({ ...eventForm, location })} placeholder="Event location" />
+            <TextField label="Image URL (optional)" type="url" value={eventForm.image_url} onChange={(image_url) => setEventForm({ ...eventForm, image_url })} placeholder="https://..." />
+            <TextField label="Registration link (optional)" type="url" value={eventForm.register_link} onChange={(register_link) => setEventForm({ ...eventForm, register_link })} placeholder="https://..." />
+            <label className="flex items-center gap-2 text-sm text-slate-300">
+              <input type="checkbox" checked={eventForm.is_past} onChange={(e) => setEventForm({ ...eventForm, is_past: e.target.checked })} className="rounded border-slate-700 bg-slate-950" />
+              Mark as past event
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-300">
+              <input type="checkbox" checked={eventForm.registration_open} onChange={(e) => setEventForm({ ...eventForm, registration_open: e.target.checked })} className="rounded border-slate-700 bg-slate-950" />
+              Registration open
+            </label>
+            <TextField label="Registration message (shown when closed)" value={eventForm.registration_message} onChange={(registration_message) => setEventForm({ ...eventForm, registration_message })} placeholder="Registration closed" />
+            <FormActions busy={busy} editing={Boolean(editingEventId)} createLabel="+ Add Event" saveLabel="Save Event" onCancel={() => { setEditingEventId(""); setEventForm(emptyEvent); }} />
+          </form>
+          <div className="mt-5">
+            {loading ? <LoadingRows /> : (
+              <AdminList
+                emptyText="No events yet."
+                rows={events}
+                getTitle={(e) => e.title}
+                getSubtitle={(e) => `${e.date ? new Date(e.date).toLocaleDateString() : ''} ${e.location ? `• ${e.location}` : ''} ${e.is_past ? '(Past)' : ''}`}
+                onEdit={(e) => { setEditingEventId(e.id); setEventForm({ title: e.title ?? "", description: e.description ?? "", date: e.date ?? "", location: e.location ?? "", register_link: e.register_link ?? "", image_url: e.image_url ?? "", is_past: e.is_past ?? false, registration_open: e.registration_open ?? true, registration_message: e.registration_message ?? "" }); }}
+                onDelete={(e) => deleteRow("team_events", e, e.title, loadEvents, setBusy, showMessage)}
+              />
+            )}
+          </div>
+        </AdminPanel>
+      )}
+
+      {activeSubTab === "services" && (
+        <AdminPanel title="Services" description="Add, edit, and reorder team services.">
+          <form onSubmit={saveService} className="grid gap-3">
+            <TextField label="Service title" value={serviceForm.title} onChange={(title) => setServiceForm({ ...serviceForm, title })} placeholder="Service name" />
+            <TextareaField label="Description (optional)" value={serviceForm.description} onChange={(description) => setServiceForm({ ...serviceForm, description })} />
+            <TextField label="Contact link (optional)" type="url" value={serviceForm.contact_link} onChange={(contact_link) => setServiceForm({ ...serviceForm, contact_link })} placeholder="https://..." />
+            <FormActions busy={busy} editing={Boolean(editingServiceId)} createLabel="+ Add Service" saveLabel="Save Service" onCancel={() => { setEditingServiceId(""); setServiceForm(emptyService); }} />
+          </form>
+          <div className="mt-5">
+            {loading ? <LoadingRows /> : (
+              <AdminList
+                emptyText="No services yet."
+                rows={services}
+                getTitle={(s) => s.title}
+                getSubtitle={(s) => s.description}
+                onEdit={(s) => { setEditingServiceId(s.id); setServiceForm({ title: s.title ?? "", description: s.description ?? "", contact_link: s.contact_link ?? "" }); }}
+                onDelete={(s) => deleteRow("team_services", s, s.title, loadServices, setBusy, showMessage)}
+                onMoveUp={(s) => moveRow("team_services", services, s, "up", loadServices, setBusy, showMessage)}
+                onMoveDown={(s) => moveRow("team_services", services, s, "down", loadServices, setBusy, showMessage)}
+              />
+            )}
+          </div>
+        </AdminPanel>
+      )}
+    </section>
+  );
+}
+
+function JoinRequestsManager() {
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [joinConfig, setJoinConfig] = useState({ is_open: false, message: "" });
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+
+  const loadRequests = useCallback(async () => {
+    const { data, error } = await supabase.from("join_requests").select("*").order("created_at", { ascending: false });
+    if (error) showMessage("error", friendlyError(error.message));
+    else setRequests(data ?? []);
+    setLoading(false);
+  }, [showMessage]);
+
+  const loadJoinConfig = useCallback(async () => {
+    const { data } = await supabase.from("site_config").select("join_requests_open, join_requests_message").eq("id", 1).single();
+    if (data) {
+      setJoinConfig({
+        is_open: data.join_requests_open ?? false,
+        message: data.join_requests_message ?? "",
+      });
+    }
+  }, []);
+
+  useEffect(() => { loadRequests(); loadJoinConfig(); }, [loadRequests, loadJoinConfig]);
+
+  async function markAsReviewed(request) {
+    setBusy(true);
+    const { error } = await supabase.from("join_requests").update({ status: "reviewed" }).eq("id", request.id);
+    if (error) showMessage("error", friendlyError(error.message));
+    else {
+      await loadRequests();
+      showMessage("success", "Request marked as reviewed.");
+    }
+    setBusy(false);
+  }
+
+  async function deleteRequest(request) {
+    if (!window.confirm(`Delete request from "${request.name}"?`)) return;
+    setBusy(true);
+    const { error } = await supabase.from("join_requests").delete().eq("id", request.id);
+    if (error) showMessage("error", friendlyError(error.message));
+    else {
+      await loadRequests();
+      showMessage("success", "Request deleted.");
+    }
+    setBusy(false);
+  }
+
+  async function saveJoinConfig(event) {
+    event.preventDefault();
+    setBusy(true);
+    const { error } = await supabase.from("site_config").update({
+      join_requests_open: joinConfig.is_open,
+      join_requests_message: joinConfig.message,
+    }).eq("id", 1);
+    if (error) showMessage("error", friendlyError(error.message));
+    else showMessage("success", "Join requests settings updated.");
+    setBusy(false);
+  }
+
+  const filteredRequests = statusFilter === "all" ? requests : requests.filter((r) => r.status === statusFilter);
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel breadcrumb={["Join Requests"]} message={message} kicker="Team recruitment" title="Manage join requests" />
+      
+      <AdminPanel title="Join requests status" description="Control whether the Join Us form is open to submissions and set a custom message.">
+        <form onSubmit={saveJoinConfig} className="grid gap-3">
+          <label className="flex items-center gap-3 text-sm text-slate-300">
+            <input
+              type="checkbox"
+              checked={joinConfig.is_open}
+              onChange={(e) => setJoinConfig({ ...joinConfig, is_open: e.target.checked })}
+              className="rounded border-slate-700 bg-slate-950"
+            />
+            <span className="font-semibold">Accepting new applications</span>
+          </label>
+          <TextareaField
+            label="Closed message (shown when applications are closed)"
+            value={joinConfig.message}
+            onChange={(message) => setJoinConfig({ ...joinConfig, message })}
+            placeholder="Applications are currently closed. Check back later!"
+          />
+          <button
+            type="submit"
+            disabled={busy}
+            className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? "Saving..." : "Save Settings"}
+          </button>
+        </form>
+      </AdminPanel>
+      
+      <AdminPanel title="Join requests" description="View and manage requests from students who want to join the team.">
+        <div className="mb-4 flex gap-2">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={`min-h-9 rounded-card border px-3 py-1.5 text-xs font-semibold transition ${statusFilter === "all" ? "border-cyan-300 bg-cyan-300/10 text-cyan-100" : "border-slate-700 text-slate-300 hover:border-cyan-300"}`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("new")}
+            className={`min-h-9 rounded-card border px-3 py-1.5 text-xs font-semibold transition ${statusFilter === "new" ? "border-cyan-300 bg-cyan-300/10 text-cyan-100" : "border-slate-700 text-slate-300 hover:border-cyan-300"}`}
+          >
+            New
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("reviewed")}
+            className={`min-h-9 rounded-card border px-3 py-1.5 text-xs font-semibold transition ${statusFilter === "reviewed" ? "border-cyan-300 bg-cyan-300/10 text-cyan-100" : "border-slate-700 text-slate-300 hover:border-cyan-300"}`}
+          >
+            Reviewed
+          </button>
+        </div>
+
+        {loading ? (
+          <LoadingRows />
+        ) : filteredRequests.length === 0 ? (
+          <EmptyPrompt text={statusFilter === "all" ? "No join requests yet." : `No ${statusFilter} requests.`} />
+        ) : (
+          <ul className="grid gap-2">
+            {filteredRequests.map((request) => (
+              <li key={request.id} className="rounded-card border border-slate-800 bg-slate-950/80 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{request.name}</p>
+                    <p className="text-xs text-slate-400">{request.email}</p>
+                    {request.phone && <p className="text-xs text-slate-400">{request.phone}</p>}
+                    <p className="text-xs text-slate-500 mt-1">{request.faculty_level} • {new Date(request.created_at).toLocaleDateString()}</p>
+                    {request.message && <p className="mt-2 text-xs text-slate-300 line-clamp-2">{request.message}</p>}
+                    <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs font-bold uppercase tracking-wide ${request.status === "new" ? "bg-cyan-300/10 text-cyan-200" : "bg-slate-700 text-slate-400"}`}>
+                      {request.status}
+                    </span>
+                  </div>
+                  <div className="flex gap-1">
+                    {request.status === "new" && (
+                      <IconButton disabled={busy} label="Mark as reviewed" onClick={() => markAsReviewed(request)}>
+                        Mark reviewed
+                      </IconButton>
+                    )}
+                    <IconButton danger disabled={busy} label="Delete request" onClick={() => deleteRequest(request)}>
+                      Delete
+                    </IconButton>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </AdminPanel>
+    </section>
+  );
+}
+
+function SpecialSectionsManager() {
+  const [sections, setSections] = useState([]);
+  const [links, setLinks] = useState([]);
+  const [selectedSectionId, setSelectedSectionId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [sectionForm, setSectionForm] = useState(emptySection);
+  const [linkForm, setLinkForm] = useState(emptyLink);
+  const [editingSectionId, setEditingSectionId] = useState("");
+  const [editingLinkId, setEditingLinkId] = useState("");
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+  const selectedSection = sections.find((s) => s.id === selectedSectionId);
+
+  const loadSections = useCallback(async () => {
+    const { data, error } = await supabase.from("special_sections").select("*").order("order");
+    if (error) showMessage("error", friendlyError(error.message));
+    else setSections(data ?? []);
+    setLoading(false);
+  }, [showMessage]);
+
+  const loadLinks = useCallback(async (sectionId) => {
+    if (!sectionId) { setLinks([]); return; }
+    const { data, error } = await supabase
+      .from("resource_links")
+      .select("*")
+      .eq("parent_type", "section")
+      .eq("parent_id", sectionId)
+      .order("order");
+    if (error) showMessage("error", friendlyError(error.message));
+    else setLinks(data ?? []);
+  }, [showMessage]);
+
+  useEffect(() => { loadSections(); }, [loadSections]);
+  useEffect(() => { loadLinks(selectedSectionId); setLinkForm(emptyLink); setEditingLinkId(""); }, [loadLinks, selectedSectionId]);
+
+  async function saveSection(event) {
+    event.preventDefault();
+    const name_en = sectionForm.name_en.trim();
+    if (!name_en) { showMessage("error", "Please enter a section name."); return; }
+    setBusy(true);
+    const slug = sectionForm.slug.trim() || slugify(name_en);
+    const payload = {
+      name_en,
+      name_ar: sectionForm.name_ar.trim() || null,
+      slug,
+    };
+    const request = editingSectionId
+      ? supabase.from("special_sections").update(payload).eq("id", editingSectionId)
+      : supabase.from("special_sections").insert({ ...payload, order: sections.length });
+    const { data, error } = await request.select().single();
+    if (error) showMessage("error", friendlyError(error.message));
+    else {
+      setSectionForm(emptySection);
+      setEditingSectionId("");
+      await loadSections();
+      if (!editingSectionId && data?.id) setSelectedSectionId(data.id);
+      showMessage("success", editingSectionId ? "Section updated." : "Section added.");
+    }
+    setBusy(false);
+  }
+
+  async function saveSectionLink(event) {
+    event.preventDefault();
+    await saveResourceLink({
+      event,
+      editingId: editingLinkId,
+      form: linkForm,
+      links,
+      parentId: selectedSectionId,
+      parentType: "section",
+      reset: () => { setLinkForm(emptyLink); setEditingLinkId(""); },
+      reload: () => loadLinks(selectedSectionId),
+      setBusy,
+      showMessage,
+    });
+  }
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel
+        breadcrumb={["Special Sections", selectedSection?.name_en].filter(Boolean)}
+        message={message}
+        kicker="Special content"
+        title="Special Sections"
+      />
+      <p className="text-sm text-slate-400 -mt-3">
+        Special sections like equivalency exams and other links that appear on the Materials page.
+      </p>
+
+      <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
+        <AdminPanel title="Special Sections" description="Add, edit, and reorder special sections.">
+          <form onSubmit={saveSection} className="grid gap-3">
+            <TextField label="Section name (English)" value={sectionForm.name_en} onChange={(name_en) => setSectionForm({ ...sectionForm, name_en })} placeholder="Equivalency Exams" />
+            <TextField label="Section name (Arabic, optional)" value={sectionForm.name_ar} onChange={(name_ar) => setSectionForm({ ...sectionForm, name_ar })} placeholder="امتحانات المعادلة" />
+            <TextField label="Slug (optional)" value={sectionForm.slug} onChange={(slug) => setSectionForm({ ...sectionForm, slug })} placeholder="equivalency-exams" />
+            <p className="text-xs text-slate-500 -mt-1">Auto-generated from English name if left blank.</p>
+            <FormActions busy={busy} editing={Boolean(editingSectionId)} createLabel="+ Add Section" saveLabel="Save Section" onCancel={() => { setEditingSectionId(""); setSectionForm(emptySection); }} />
+          </form>
+          <div className="mt-5">
+            {loading ? (
+              <LoadingRows />
+            ) : (
+              <AdminList
+                emptyText="No special sections yet."
+                rows={sections}
+                selectedId={selectedSectionId}
+                getTitle={(s) => s.name_en}
+                getSubtitle={(s) => s.name_ar}
+                onSelect={(s) => setSelectedSectionId(s.id)}
+                onEdit={(s) => {
+                  setEditingSectionId(s.id);
+                  setSectionForm({ name_en: s.name_en ?? "", name_ar: s.name_ar ?? "", slug: s.slug ?? "" });
+                }}
+                onDelete={(s) => deleteRow("special_sections", s, s.name_en, async () => {
+                  if (selectedSectionId === s.id) setSelectedSectionId("");
+                  await loadSections();
+                }, setBusy, showMessage)}
+                onMoveUp={(s) => moveRow("special_sections", sections, s, "up", loadSections, setBusy, showMessage)}
+                onMoveDown={(s) => moveRow("special_sections", sections, s, "down", loadSections, setBusy, showMessage)}
+              />
+            )}
+          </div>
+        </AdminPanel>
+
+        <AdminPanel
+          title="Section resources"
+          description={selectedSection ? `Links shown when students click "${selectedSection.name_en}".` : "Choose a section to manage its resources."}
+        >
+          {selectedSection ? (
+            <>
+              <LinkForm
+                busy={busy}
+                editing={Boolean(editingLinkId)}
+                form={linkForm}
+                onCancel={() => { setEditingLinkId(""); setLinkForm(emptyLink); }}
+                onChange={setLinkForm}
+                onSubmit={saveSectionLink}
+              />
+              <div className="mt-5">
+                <AdminList
+                  emptyText="No resources yet."
+                  rows={links}
+                  getTitle={(l) => l.label}
+                  getSubtitle={(l) => `${linkTypeLabel(l.type)} - ${l.url}`}
+                  onEdit={(l) => { setEditingLinkId(l.id); setLinkForm({ label: l.label ?? "", type: l.type ?? "drive_folder", url: l.url ?? "" }); }}
+                  onDelete={(l) => deleteRow("resource_links", l, l.label, () => loadLinks(selectedSectionId), setBusy, showMessage)}
+                  onMoveUp={(l) => moveRow("resource_links", links, l, "up", () => loadLinks(selectedSectionId), setBusy, showMessage)}
+                  onMoveDown={(l) => moveRow("resource_links", links, l, "down", () => loadLinks(selectedSectionId), setBusy, showMessage)}
+                />
+              </div>
+            </>
+          ) : (
+            <EmptyPrompt text="Select a section to manage its resources." />
+          )}
+        </AdminPanel>
+      </div>
+    </section>
+  );
+}
+
+function ContactManager() {
+  const [contactForm, setContactForm] = useState(emptyContact);
+  const [links, setLinks] = useState([]);
+  const [linkForm, setLinkForm] = useState(emptySocialLink);
+  const [editingLinkId, setEditingLinkId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+
+  const loadContact = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("site_config")
+      .select("whatsapp_number, facebook_url, youtube_url, linkedin_url, whatsapp_channel_url")
+      .eq("id", 1)
+      .single();
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+    } else {
+      setContactForm({
+        whatsapp_number: data?.whatsapp_number ?? "",
+        facebook_url: data?.facebook_url ?? "",
+        youtube_url: data?.youtube_url ?? "",
+        linkedin_url: data?.linkedin_url ?? "",
+        whatsapp_channel_url: data?.whatsapp_channel_url ?? "",
+      });
+    }
+  }, [showMessage]);
+
+  const loadLinks = useCallback(async () => {
+    const { data, error } = await supabase.from("social_links").select("*").order("order", { ascending: true });
+    if (error) showMessage("error", friendlyError(error.message));
+    else setLinks(data ?? []);
+  }, [showMessage]);
+
+  useEffect(() => {
+    Promise.all([loadContact(), loadLinks()]).finally(() => setLoading(false));
+  }, [loadContact, loadLinks]);
+
+  async function saveContact(event) {
+    event.preventDefault();
+    setBusy(true);
+    const payload = {
+      whatsapp_number: contactForm.whatsapp_number.trim() || null,
+      facebook_url: contactForm.facebook_url.trim() || null,
+      youtube_url: contactForm.youtube_url.trim() || null,
+      linkedin_url: contactForm.linkedin_url.trim() || null,
+      whatsapp_channel_url: contactForm.whatsapp_channel_url.trim() || null,
+    };
+    const { error } = await supabase.from("site_config").update(payload).eq("id", 1);
+    if (error) showMessage("error", friendlyError(error.message));
+    else showMessage("success", "Contact links saved.");
+    setBusy(false);
+  }
+
+  async function saveLink(event) {
+    event.preventDefault();
+    const label = linkForm.label.trim();
+    const url = linkForm.url.trim();
+    if (!label || !url) {
+      showMessage("error", "Please enter a label and a URL.");
+      return;
+    }
+    setBusy(true);
+    const payload = { label, url };
+    const request = editingLinkId
+      ? supabase.from("social_links").update(payload).eq("id", editingLinkId)
+      : supabase.from("social_links").insert({ ...payload, order: links.length });
+    const { error } = await request;
+    if (error) {
+      showMessage("error", friendlyError(error.message));
+    } else {
+      setLinkForm(emptySocialLink);
+      setEditingLinkId("");
+      await loadLinks();
+      showMessage("success", editingLinkId ? "Link updated." : "Link added.");
+    }
+    setBusy(false);
+  }
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel breadcrumb={["Contact & Links"]} message={message} kicker="Site content" title="Contact & social links" />
+
+      <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
+        <AdminPanel title="Main contact links" description="These power the WhatsApp / Facebook / YouTube / LinkedIn buttons on the Home page and Footer.">
+          {loading ? <LoadingRows /> : (
+            <form onSubmit={saveContact} className="grid gap-3">
+              <TextField label="WhatsApp number" value={contactForm.whatsapp_number} onChange={(whatsapp_number) => setContactForm({ ...contactForm, whatsapp_number })} placeholder="+201025005751" />
+              <TextField label="Facebook URL" type="url" value={contactForm.facebook_url} onChange={(facebook_url) => setContactForm({ ...contactForm, facebook_url })} placeholder="https://facebook.com/..." />
+              <TextField label="YouTube URL" type="url" value={contactForm.youtube_url} onChange={(youtube_url) => setContactForm({ ...contactForm, youtube_url })} placeholder="https://youtube.com/@..." />
+              <TextField label="LinkedIn URL" type="url" value={contactForm.linkedin_url} onChange={(linkedin_url) => setContactForm({ ...contactForm, linkedin_url })} placeholder="https://linkedin.com/company/..." />
+              <TextField label="WhatsApp Channel URL (optional)" type="url" value={contactForm.whatsapp_channel_url} onChange={(whatsapp_channel_url) => setContactForm({ ...contactForm, whatsapp_channel_url })} placeholder="https://whatsapp.com/channel/..." />
+              <button
+                type="submit"
+                disabled={busy}
+                className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {busy ? "Saving..." : "Save Contact Links"}
+              </button>
+            </form>
+          )}
+        </AdminPanel>
+
+        <AdminPanel title="Extra links" description="Add any number of additional links (Instagram, Telegram, Discord, a specific WhatsApp group, etc.) — they show up next to the main links above.">
+          <form onSubmit={saveLink} className="grid gap-3">
+            <TextField label="Label" value={linkForm.label} onChange={(label) => setLinkForm({ ...linkForm, label })} placeholder="Instagram" />
+            <TextField label="URL" type="url" value={linkForm.url} onChange={(url) => setLinkForm({ ...linkForm, url })} placeholder="https://instagram.com/..." />
+            <FormActions busy={busy} editing={Boolean(editingLinkId)} createLabel="+ Add Link" saveLabel="Save Link" onCancel={() => { setEditingLinkId(""); setLinkForm(emptySocialLink); }} />
+          </form>
+          <div className="mt-5">
+            {loading ? <LoadingRows /> : (
+              <AdminList
+                emptyText="No extra links yet."
+                rows={links}
+                getTitle={(l) => l.label}
+                getSubtitle={(l) => l.url}
+                onEdit={(l) => { setEditingLinkId(l.id); setLinkForm({ label: l.label ?? "", url: l.url ?? "" }); }}
+                onDelete={(l) => deleteRow("social_links", l, l.label, loadLinks, setBusy, showMessage)}
+                onMoveUp={(l) => moveRow("social_links", links, l, "up", loadLinks, setBusy, showMessage)}
+                onMoveDown={(l) => moveRow("social_links", links, l, "down", loadLinks, setBusy, showMessage)}
+              />
+            )}
+          </div>
+        </AdminPanel>
+      </div>
     </section>
   );
 }

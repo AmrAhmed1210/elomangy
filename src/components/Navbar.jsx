@@ -7,6 +7,8 @@ const NAV_LINKS = [
   { to: "/materials", label: "Materials", match: (p) => p === "/materials" || p.startsWith("/materials/") },
   { to: "/training-sessions", label: "Training", match: (p) => p === "/training-sessions" || p.startsWith("/training-sessions/") },
   { to: "/diplomas", label: "Diplomas", match: (p) => p === "/diplomas" || p.startsWith("/diplomas/") },
+  { to: "/team", label: "Team", match: (p) => p === "/team" },
+  { to: "/join-us", label: "Join Us", match: (p) => p === "/join-us" },
   { to: "/about", label: "About", match: (p) => p === "/about" },
 ];
 

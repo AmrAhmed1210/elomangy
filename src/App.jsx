@@ -18,6 +18,9 @@ import CategoryDetail from "./pages/CategoryDetail";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import BoxDetail from "./pages/BoxDetail";
+import Team from "./pages/Team";
+import JoinUs from "./pages/JoinUs";
+import SpecialSectionDetail from "./pages/SpecialSectionDetail";
 
 function App() {
   return (
@@ -51,6 +54,9 @@ function App() {
               <Route path="/training-sessions" element={<TrainingSessions />} />
               <Route path="/training-sessions/:sessionId" element={<SessionDetail />} />
               <Route path="/training-sessions/:sessionId/:categoryId" element={<CategoryDetail />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/join-us" element={<JoinUs />} />
+              <Route path="/materials/section/:slug" element={<SpecialSectionDetail />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route
                 path="/admin"

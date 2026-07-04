@@ -1,13 +1,17 @@
 # 3loomangy Web
 
-Official website for 3loomangy (علومنجي) - FSCU student initiative providing study materials, diploma resources, and training content.
+Official website for 3loomangy (علومنجي) - FSCU student initiative providing study materials, diploma resources, training content, and team information.
 
 ## Features
 
 - **Materials Section**: Browse study materials by year, track, semester, and course
 - **Diplomas Section**: View available diploma programs and their resources
 - **Training Sessions**: Access training videos and organized categories
+- **Team Work**: Showcase team projects, events, and services
+- **Join Us**: Apply to join the team (controlled by admin)
+- **Special Sections**: Additional resources like equivalency exams
 - **About Us**: Learn about FSCU and the 3loomangy initiative
+- **Admin Dashboard**: Manage all site content including materials, training, team content, join requests, and social links
 - **Responsive Design**: Modern UI with animated backgrounds and glass-morphism effects
 - **Supabase Integration**: Real-time data fetching from PostgreSQL database
 
@@ -72,16 +76,34 @@ npm run dev
 ```
 src/
 ├── components/
-│   ├── common/          # Reusable components (LoadingSkeleton, EmptyState)
-│   ├── training/        # Training sessions components
+│   ├── common/          # Reusable components (Card, LoadingSkeleton, EmptyState, ResourceLinkList)
+│   ├── layout/          # Layout components (PageLayout, PageHeader, Footer)
+│   ├── auth/            # Authentication components (ProtectedAdminRoute)
+│   ├── training/        # Training sessions components (VideoCard, CategoryCard, SessionCard)
 │   ├── Navbar.jsx
 │   └── Footer.jsx
 ├── pages/
 │   ├── Home.jsx
 │   ├── Materials.jsx
+│   ├── YearDetail.jsx
+│   ├── TrackYearDetail.jsx
+│   ├── SemesterDetail.jsx
+│   ├── CourseDetail.jsx
 │   ├── Diplomas.jsx
+│   ├── DiplomaDetail.jsx
+│   ├── TrainingSessions.jsx
+│   ├── SessionDetail.jsx
+│   ├── CategoryDetail.jsx
+│   ├── Team.jsx
+│   ├── JoinUs.jsx
+│   ├── SpecialSectionDetail.jsx
 │   ├── About.jsx
-│   └── TrainingSessions.jsx
+│   ├── AdminLogin.jsx
+│   └── AdminDashboard.jsx
+├── contexts/
+│   └── AuthContext.jsx   # Authentication context
+├── hooks/
+│   └── useSiteConfig.jsx # Custom hook for site configuration
 ├── lib/
 │   └── supabase.js      # Supabase configuration
 └── index.css           # Global styles
@@ -89,20 +111,35 @@ src/
 
 ## Database Tables
 
+### Content Tables
 - `tracks` - Academic tracks (Biochemistry, Biophysics, etc.)
 - `semesters` - Semester data linked to tracks
 - `courses` - Course data linked to semesters
-- `resource_links` - Resource links for courses and diplomas
+- `resource_links` - Resource links for courses, diplomas, and special sections
 - `diplomas` - Diploma programs
 - `special_sections` - Special sections (Equivalency Exams, etc.)
+- `dashboard_boxes` - Custom boxes on Materials page
+
+### Training Tables
 - `training_sessions` - Training session data
 - `training_categories` - Training categories
 - `training_videos` - Training video data
-- `site_config` - Site configuration (social links, about content)
+
+### Team Tables
 - `team_projects` - Team project showcase
-- `team_events` - Team events
-- `team_services` - Team services
-- `admins` - Admin whitelist
+- `team_events` - Team events (upcoming and past)
+- `team_services` - Team services offered
+
+### Configuration Tables
+- `site_config` - Site configuration (social links, about content, join requests settings)
+  - `about_fscu_content` - About page content
+  - `facebook_url`, `youtube_url`, `linkedin_url` - Social media links
+  - `whatsapp_number`, `email` - Contact information
+  - `join_requests_open` - Toggle for Join Us form
+  - `join_requests_message` - Custom message when form is closed
+
+### Admin Tables
+- `admins` - Admin whitelist with roles (owner/admin)
 - `join_requests` - Join Us form submissions
 
 ## Scripts

@@ -1,8 +1,19 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import useSiteConfig from "../hooks/useSiteConfig";
 
 export default function Home() {
   const { config } = useSiteConfig();
+  const [departmentCount, setDepartmentCount] = useState(13);
+
+  useEffect(() => {
+    async function fetchDepartmentCount() {
+      const { count } = await supabase.from("tracks").select("id", { count: "exact", head: true });
+      if (count !== null) setDepartmentCount(count);
+    }
+    fetchDepartmentCount();
+  }, []);
 
   return (
     <div className="page-enter">
@@ -34,6 +45,9 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
+            <Link to="/team" className="btn-secondary">
+              Team Work
+            </Link>
             <Link to="/training-sessions" className="btn-secondary">
               Training Sessions
             </Link>
@@ -52,7 +66,7 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-5 pt-2">
               {[
-                { value: "13+", label: "Departments" },
+                { value: `${departmentCount}+`, label: "Departments" },
                 { value: "100s", label: "Courses" },
                 { value: "Free", label: "Forever" },
               ].map((stat, i) => (
@@ -116,6 +130,9 @@ export default function Home() {
                 label="WhatsApp"
               />
             )}
+            {config.extraLinks?.map((link) => (
+              <SocialButton key={link.id} href={link.url} label={link.label} />
+            ))}
           </div>
         </div>
       </div>
