@@ -44,21 +44,8 @@
   --focus-ring: 0 0 0 4px rgba(13, 148, 136, 0.16);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
-    --color-chalkboard: #e5eef7;
-    --color-chalkboard-light: #a8b5c4;
-    --color-specimen-bg: #07111d;
-    --color-graph-grid: #233246;
-    --surface-page: #07111d;
-    --surface-card: rgba(13, 22, 36, 0.82);
-    --surface-card-strong: rgba(15, 23, 42, 0.94);
-    --surface-border: rgba(148, 163, 184, 0.22);
-    --shadow-soft: 0 18px 55px rgba(0, 0, 0, 0.28);
-    --shadow-lift: 0 24px 70px rgba(20, 184, 166, 0.12);
-  }
-}
+/* Dark mode disabled intentionally: the site always stays in light mode
+   regardless of the device/browser color scheme setting. */
 
 /* ==============================
    ANIMATED BACKGROUND
@@ -456,21 +443,8 @@ textarea:focus-visible {
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .animated-bg {
-    background:
-      linear-gradient(rgba(20, 184, 166, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(20, 184, 166, 0.016) 1px, transparent 1px),
-      radial-gradient(circle at 18% 12%, rgba(20, 184, 166, 0.09), transparent 38%),
-      radial-gradient(circle at 88% 18%, rgba(139, 92, 246, 0.06), transparent 36%),
-      linear-gradient(145deg, #07111d 0%, #0b1724 54%, #08121d 100%);
-    background-size: 64px 64px, 64px 64px, 120% 120%, 120% 120%, 100% 100%;
-  }
-
-  .search-input {
-    background: rgba(15, 23, 42, 0.84);
-  }
-}
+/* Dark mode disabled intentionally: no override for .animated-bg /
+   .search-input, so they always use the light-mode styles defined above. */
 
 /* ==============================
    SCROLLBAR STYLING
