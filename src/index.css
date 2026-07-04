@@ -2,6 +2,8 @@
 
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Primary palette */
   --color-lab-teal: #0D9488;
@@ -36,6 +38,8 @@
 :root {
   color-scheme: light;
   --surface-page: #f8fafc;
+  --surface-nav: rgba(255, 255, 255, 0.9);
+  --surface-footer: rgba(255, 255, 255, 0.82);
   --surface-card: rgba(255, 255, 255, 0.86);
   --surface-card-strong: rgba(255, 255, 255, 0.96);
   --surface-border: rgba(203, 213, 225, 0.72);
@@ -44,8 +48,22 @@
   --focus-ring: 0 0 0 4px rgba(13, 148, 136, 0.16);
 }
 
-/* Dark mode disabled intentionally: the site always stays in light mode
-   regardless of the device/browser color scheme setting. */
+.dark {
+  color-scheme: dark;
+  --color-chalkboard: #F8FAFC;
+  --color-chalkboard-light: #CBD5E1;
+  --color-specimen-bg: #111827;
+  --color-graph-grid: #334155;
+  --surface-page: #0f172a;
+  --surface-nav: rgba(15, 23, 42, 0.92);
+  --surface-footer: rgba(15, 23, 42, 0.9);
+  --surface-card: rgba(30, 41, 59, 0.86);
+  --surface-card-strong: rgba(30, 41, 59, 0.96);
+  --surface-border: rgba(71, 85, 105, 0.72);
+  --shadow-soft: 0 18px 55px rgba(0, 0, 0, 0.3);
+  --shadow-lift: 0 24px 70px rgba(13, 148, 136, 0.25);
+  --focus-ring: 0 0 0 4px rgba(13, 148, 136, 0.25);
+}
 
 /* ==============================
    ANIMATED BACKGROUND
@@ -104,6 +122,16 @@
     radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.07), transparent 42%),
     linear-gradient(145deg, #F8FAFC 0%, #F1FBF9 44%, #F8FAFC 100%);
   background-size: 64px 64px, 64px 64px, 120% 120%, 120% 120%, 120% 120%, 100% 100%;
+}
+
+.dark .animated-bg {
+  background:
+    linear-gradient(rgba(20, 184, 166, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 184, 166, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 15% 10%, rgba(20, 184, 166, 0.12), transparent 40%),
+    radial-gradient(circle at 90% 15%, rgba(139, 92, 246, 0.1), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.1), transparent 42%),
+    linear-gradient(145deg, #0F172A 0%, #10231F 48%, #111827 100%);
 }
 
 .animated-bg::before {
@@ -275,6 +303,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html[dir="rtl"] body {
+  font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+}
+
+html[dir="rtl"] .font-display {
+  font-family: 'Cairo', 'Space Grotesk', system-ui, sans-serif;
+}
+
 ::selection {
   background: rgba(20, 184, 166, 0.22);
   color: var(--color-chalkboard);
@@ -373,6 +409,11 @@ textarea:focus-visible {
   box-shadow: 0 6px 16px rgba(13, 148, 136, 0.12);
 }
 
+.dark .btn-secondary {
+  background: rgba(15, 23, 42, 0.72);
+  color: var(--color-lab-teal-light);
+}
+
 /* ==============================
    SEARCH INPUT
    ============================== */
@@ -400,6 +441,12 @@ textarea:focus-visible {
   outline: none;
   border-color: var(--color-lab-teal);
   box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+.dark .search-input {
+  border-color: rgba(71, 85, 105, 0.9);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--color-chalkboard);
 }
 
 /* ==============================
@@ -443,8 +490,9 @@ textarea:focus-visible {
   }
 }
 
-/* Dark mode disabled intentionally: no override for .animated-bg /
-   .search-input, so they always use the light-mode styles defined above. */
+html[dir="rtl"] .group:hover .group-hover\:translate-x-1 {
+  transform: translateX(-0.25rem);
+}
 
 /* ==============================
    SCROLLBAR STYLING

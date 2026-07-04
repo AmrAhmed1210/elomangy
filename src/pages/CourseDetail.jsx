@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const TYPE_CONFIG = {
   drive_folder: { label: "Drive Folder", icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z", color: "accent-blue" },
@@ -20,6 +21,7 @@ const COLOR_MAP = {
 };
 
 export default function CourseDetail() {
+  const { t, localize } = useLanguage();
   const { courseId } = useParams();
   const [course, setCourse] = useState(null);
   const [links, setLinks] = useState([]);
@@ -64,7 +66,7 @@ export default function CourseDetail() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">Loading...</p>
+        <p className="text-chalkboard-light">{t("common_loading")}</p>
       </div>
     </div>
   );
@@ -86,25 +88,25 @@ export default function CourseDetail() {
     <PageLayout>
       <PageHeader
         badge={course.code}
-        title={course.name}
-        subtitle={course.instructor ? `Instructor: ${course.instructor}` : undefined}
+        title={localize(course, "name", "name_ar")}
+        subtitle={course.instructor ? `${t("instructor_label")}: ${course.instructor}` : undefined}
         breadcrumbs={[
-          { to: "/", label: "Home" },
-          { to: "/materials", label: "Materials" },
-          { label: `${course.code} — ${course.name}` },
+          { to: "/", label: t("nav_home") },
+          { to: "/materials", label: t("nav_materials") },
+          { label: `${course.code} - ${localize(course, "name", "name_ar")}` },
         ]}
       />
 
       {/* Resource Cards Grid */}
       {links.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-graph-grid rounded-2xl bg-white/40 backdrop-blur-sm">
+        <div className="text-center py-16 border-2 border-dashed border-graph-grid rounded-2xl bg-[var(--surface-card)] backdrop-blur-sm">
           <div className="w-14 h-14 bg-graph-grid/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-7 h-7 text-chalkboard-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
-          <p className="text-chalkboard-light font-medium text-lg">No materials yet</p>
-          <p className="text-sm text-chalkboard-light/70 mt-2">Check back later or contact the team</p>
+          <p className="text-chalkboard-light font-medium text-lg">{t("no_materials_yet")}</p>
+          <p className="text-sm text-chalkboard-light/70 mt-2">{t("check_back_later")}</p>
         </div>
       ) : (
         <div className="centered-card-grid">
@@ -118,7 +120,7 @@ export default function CourseDetail() {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`stagger-${Math.min(i + 1, 8)} group relative bg-white/80 backdrop-blur-sm border border-graph-grid/80 rounded-2xl p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-400 transform hover:-translate-y-1 overflow-hidden ring-1 ring-transparent ${colors.ring}`}
+                className={`stagger-${Math.min(i + 1, 8)} group relative bg-[var(--surface-card)] backdrop-blur-sm border border-[var(--surface-border)] rounded-2xl p-5 sm:p-6 shadow-md hover:shadow-xl transition-all duration-400 transform hover:-translate-y-1 overflow-hidden ring-1 ring-transparent ${colors.ring}`}
               >
                 {/* Top accent line */}
                 <div className={`absolute top-0 left-0 right-0 h-0.5 ${colors.bg} opacity-60 group-hover:opacity-100 transition-opacity`} style={{ background: `var(--color-${typeInfo.color})` }} />

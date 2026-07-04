@@ -4,13 +4,15 @@ import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import EmptyState from "../components/common/EmptyState";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const TEAM_TABS = [
-  { key: "events", label: "Events" },
-  { key: "services", label: "Services" },
+  { key: "events", labelKey: "team_events" },
+  { key: "services", labelKey: "team_services" },
 ];
 
 export default function Team() {
+  const { t, localize } = useLanguage();
   const [activeTab, setActiveTab] = useState("events");
   const [events, setEvents] = useState([]);
   const [services, setServices] = useState([]);
@@ -57,9 +59,9 @@ export default function Team() {
       <PageHeader
         badge="Team Work"
         badgeColor="accent-purple"
-        title="Team"
-        subtitle="Events and services from our team"
-        breadcrumbs={[{ to: "/", label: "Home" }, { label: "Team" }]}
+        title={t("team_title")}
+        subtitle={t("team_subtitle")}
+        breadcrumbs={[{ to: "/", label: t("nav_home") }, { label: t("nav_team") }]}
       />
 
       {/* Event Now Section */}
@@ -71,7 +73,7 @@ export default function Team() {
                 <div className="aspect-video overflow-hidden bg-gradient-to-br from-lab-teal/10 to-answer-green/10">
                   <img
                     src={eventNow.image_url}
-                    alt={eventNow.title}
+                    alt={localize(eventNow, "title", "title_ar")}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -82,7 +84,7 @@ export default function Team() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
                   </span>
-                  Event Now
+                  {t("team_event_now")}
                 </span>
               </div>
             </div>
@@ -90,8 +92,8 @@ export default function Team() {
               {eventNow.date && (
                 <p className="text-xs font-semibold text-lab-teal mb-2">{new Date(eventNow.date).toLocaleDateString()}</p>
               )}
-              <h3 className="font-display text-2xl font-bold text-chalkboard mb-2">{eventNow.title}</h3>
-              <p className="text-sm text-chalkboard-light line-clamp-3 mb-4">{eventNow.description}</p>
+              <h3 className="font-display text-2xl font-bold text-chalkboard mb-2">{localize(eventNow, "title", "title_ar")}</h3>
+              <p className="text-sm text-chalkboard-light line-clamp-3 mb-4">{localize(eventNow, "description", "description_ar")}</p>
               {eventNow.location && (
                 <p className="text-xs text-chalkboard-light mb-4 flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,7 +110,7 @@ export default function Team() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-lab-teal text-white rounded-full text-sm font-bold hover:bg-lab-teal-dark transition-colors"
                 >
-                  Register
+                  {t("team_register")}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                   </svg>
@@ -137,7 +139,7 @@ export default function Team() {
                 : "border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard-light hover:border-lab-teal/30 hover:text-chalkboard"
             }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>
@@ -153,15 +155,17 @@ export default function Team() {
 }
 
 function EventsSection({ upcomingEvents, pastEvents }) {
+  const { t, localize } = useLanguage();
+  
   if (upcomingEvents.length === 0 && pastEvents.length === 0) {
-    return <EmptyState title="No Events" description="Events will appear here once they are added." />;
+    return <EmptyState title={t("team_no_events")} description={t("team_no_events_desc")} />;
   }
 
   return (
     <div className="space-y-10">
       {upcomingEvents.length > 0 && (
         <div>
-          <h2 className="font-display text-2xl font-bold text-chalkboard mb-6">Upcoming Events</h2>
+          <h2 className="font-display text-2xl font-bold text-chalkboard mb-6">{t("team_upcoming_events")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {upcomingEvents.map((event, index) => (
               <EventCard key={event.id} event={event} index={index} isPast={false} />
@@ -171,7 +175,7 @@ function EventsSection({ upcomingEvents, pastEvents }) {
       )}
       {pastEvents.length > 0 && (
         <div>
-          <h2 className="font-display text-2xl font-bold text-chalkboard mb-6">Past Events</h2>
+          <h2 className="font-display text-2xl font-bold text-chalkboard mb-6">{t("team_past_events")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {pastEvents.map((event, index) => (
               <EventCard key={event.id} event={event} index={index} isPast={true} />
@@ -184,6 +188,8 @@ function EventsSection({ upcomingEvents, pastEvents }) {
 }
 
 function EventCard({ event, index, isPast }) {
+  const { t, localize } = useLanguage();
+  
   return (
     <div
       className={`glass-card overflow-hidden group hover:-translate-y-1 transition-all duration-300 stagger-${Math.min(index + 1, 8)}`}
@@ -192,7 +198,7 @@ function EventCard({ event, index, isPast }) {
         <div className="aspect-video overflow-hidden bg-gradient-to-br from-lab-teal/10 to-answer-green/10">
           <img
             src={event.image_url}
-            alt={event.title}
+            alt={localize(event, "title", "title_ar")}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
         </div>
@@ -202,9 +208,9 @@ function EventCard({ event, index, isPast }) {
           <p className="text-xs font-semibold text-lab-teal mb-2">{new Date(event.date).toLocaleDateString()}</p>
         )}
         <h3 className="font-display text-xl font-bold text-chalkboard mb-2 group-hover:text-lab-teal transition-colors">
-          {event.title}
+          {localize(event, "title", "title_ar")}
         </h3>
-        <p className="text-sm text-chalkboard-light line-clamp-3 mb-4">{event.description}</p>
+        <p className="text-sm text-chalkboard-light line-clamp-3 mb-4">{localize(event, "description", "description_ar")}</p>
         {event.location && (
           <p className="text-xs text-chalkboard-light mb-4 flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +227,7 @@ function EventCard({ event, index, isPast }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-bold text-lab-teal hover:text-lab-teal-dark transition-colors"
           >
-            Register
+            {t("team_register")}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
@@ -234,7 +240,7 @@ function EventCard({ event, index, isPast }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-bold text-lab-teal hover:text-lab-teal-dark transition-colors"
           >
-            Read More
+            {t("team_read_more")}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
@@ -246,8 +252,10 @@ function EventCard({ event, index, isPast }) {
 }
 
 function ServicesSection({ services }) {
+  const { t, localize } = useLanguage();
+  
   if (services.length === 0) {
-    return <EmptyState title="No Services" description="Services will appear here once they are added." />;
+    return <EmptyState title={t("team_no_services")} description={t("team_no_services_desc")} />;
   }
 
   return (
@@ -258,9 +266,9 @@ function ServicesSection({ services }) {
           className={`glass-card p-6 group hover:-translate-y-1 transition-all duration-300 stagger-${Math.min(index + 1, 8)}`}
         >
           <h3 className="font-display text-xl font-bold text-chalkboard mb-2 group-hover:text-lab-teal transition-colors">
-            {service.title}
+            {localize(service, "title", "title_ar")}
           </h3>
-          <p className="text-sm text-chalkboard-light line-clamp-3 mb-4">{service.description}</p>
+          <p className="text-sm text-chalkboard-light line-clamp-3 mb-4">{localize(service, "description", "description_ar")}</p>
           {service.contact_link && (
             <a
               href={service.contact_link}
@@ -268,7 +276,7 @@ function ServicesSection({ services }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-bold text-lab-teal hover:text-lab-teal-dark transition-colors"
             >
-              Contact
+              {t("common_contact")}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
@@ -281,12 +289,13 @@ function ServicesSection({ services }) {
 }
 
 function LoadingTeam() {
+  const { t } = useLanguage();
   return (
     <PageLayout>
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-b-4 border-lab-teal" />
-          <p className="text-lg text-chalkboard-light">Loading...</p>
+          <p className="text-lg text-chalkboard-light">{t("common_loading")}</p>
         </div>
       </div>
     </PageLayout>
@@ -294,10 +303,11 @@ function LoadingTeam() {
 }
 
 function ErrorState({ error }) {
+  const { t } = useLanguage();
   return (
     <PageLayout>
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg font-medium text-periodic-orange">Error: {error}</p>
+        <p className="text-lg font-medium text-periodic-orange">{t("common_error_prefix")}: {error}</p>
       </div>
     </PageLayout>
   );

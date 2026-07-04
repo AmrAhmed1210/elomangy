@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import CardBubbles from "./CardBubbles";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 // Shared Card component — one visual language used everywhere on the site
 // (Materials years, Dashboard boxes, Diplomas, Training Sessions, Categories):
@@ -18,6 +19,7 @@ export default function Card({
   children,
   className = "",
 }) {
+  const { t } = useLanguage();
   const palette = {
     "lab-teal": { from: "from-lab-teal", to: "to-lab-teal-light", text: "text-lab-teal", border: "border-lab-teal/20", bg: "bg-lab-teal/10", raw: "var(--color-lab-teal)" },
     "answer-green": { from: "from-answer-green", to: "to-lab-teal-light", text: "text-answer-green", border: "border-answer-green/20", bg: "bg-answer-green/10", raw: "var(--color-answer-green)" },
@@ -45,7 +47,7 @@ export default function Card({
           </span>
         )}
         {icon && (
-          <span className={`ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${iconColors.border} ${iconColors.bg} ${iconColors.text}`}>
+          <span className={`ms-auto flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border ${iconColors.border} ${iconColors.bg} ${iconColors.text}`}>
             {icon}
           </span>
         )}
@@ -54,7 +56,7 @@ export default function Card({
             <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
-            رابط مباشر
+            {t("common_direct_link")}
           </span>
         )}
       </div>
@@ -71,7 +73,7 @@ export default function Card({
 
       {linkTarget && (
         <div className={`mt-auto flex items-center gap-2 pt-6 text-sm font-bold ${colors.text}`}>
-          <span>{isExternal ? "فتح الرابط" : "عرض التفاصيل"}</span>
+          <span>{isExternal ? t("common_open_link") : t("common_view_details")}</span>
           <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isExternal ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import Fuse from "fuse.js";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const YEAR_INFO = {
   1: { name: "First Year", description: "General courses shared by all students", color: "lab-teal" },
@@ -14,6 +15,7 @@ const YEAR_INFO = {
 };
 
 export default function YearDetail() {
+  const { t, localize } = useLanguage();
   const { year } = useParams();
   const [semesters, setSemesters] = useState([]);
   const [tracks, setTracks] = useState([]);
@@ -74,7 +76,7 @@ export default function YearDetail() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">Loading...</p>
+        <p className="text-chalkboard-light">{t("common_loading")}</p>
       </div>
     </div>
   );
@@ -95,14 +97,14 @@ export default function YearDetail() {
   return (
     <PageLayout>
       <PageHeader
-        badge={`Year ${yearNum}`}
+        badge={t("materials_year_badge", { year: yearNum })}
         badgeColor={yearData.color === "accent-purple" ? "lab-teal" : yearData.color}
-        title={yearData.name}
-        subtitle={yearData.description}
+        title={t(`year_${yearNum}_name`)}
+        subtitle={t(`year_${yearNum}_desc`)}
         breadcrumbs={[
-          { to: "/", label: "Home" },
-          { to: "/materials", label: "Materials" },
-          { label: yearData.name },
+          { to: "/", label: t("nav_home") },
+          { to: "/materials", label: t("nav_materials") },
+          { label: t(`year_${yearNum}_name`) },
         ]}
       />
 
@@ -115,7 +117,7 @@ export default function YearDetail() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={`Search ${yearNum === 1 ? "semesters" : "departments"}...`}
+          placeholder={yearNum === 1 ? t("search_semesters") : t("search_departments")}
           className="search-input"
         />
       </div>
@@ -123,7 +125,7 @@ export default function YearDetail() {
       {yearNum === 1 ? (
         <>
           {filteredSemesters.length === 0 ? (
-            <EmptyState text={searchQuery ? "No semesters found" : "No semesters yet"} />
+            <EmptyState text={searchQuery ? t("no_semesters_found") : t("no_semesters_yet")} />
           ) : (
             <div className="centered-card-grid">
               {filteredSemesters.map((semester, i) => (
@@ -148,15 +150,15 @@ export default function YearDetail() {
       ) : (
         <>
           {filteredTracks.length === 0 ? (
-            <EmptyState text={searchQuery ? "No departments found" : "No departments yet"} />
+            <EmptyState text={searchQuery ? t("no_departments_found") : t("no_departments_yet")} />
           ) : (
             <div className="centered-card-grid">
               {filteredTracks.map((track, i) => (
                 <Card
                   key={track.id}
                   to={`/materials/year/${yearNum}/${track.slug}`}
-                  title={track.name}
-                  subtitle={track.name_ar}
+                  title={localize(track, "name", "name_ar")}
+                  subtitle={localize(track, "description", "description_ar")}
                   iconColor="periodic-orange"
                   hoverColor="periodic-orange"
                   className={`stagger-${Math.min(i + 1, 8)}`}

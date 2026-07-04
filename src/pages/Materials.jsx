@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const YEARS = [
-  { id: 1, name: "First Year", description: "General courses shared by all students", iconColor: "lab-teal" },
-  { id: 2, name: "Second Year", description: "Department-specific courses — Semesters 03–04", iconColor: "periodic-orange" },
-  { id: 3, name: "Third Year", description: "Department-specific courses — Semesters 05–06", iconColor: "answer-green" },
-  { id: 4, name: "Fourth Year", description: "Department-specific courses — Semesters 07–08", iconColor: "accent-purple" },
+  { id: 1, nameKey: "year_1_name", descriptionKey: "year_1_desc", iconColor: "lab-teal" },
+  { id: 2, nameKey: "year_2_name", descriptionKey: "year_2_desc", iconColor: "periodic-orange" },
+  { id: 3, nameKey: "year_3_name", descriptionKey: "year_3_desc", iconColor: "answer-green" },
+  { id: 4, nameKey: "year_4_name", descriptionKey: "year_4_desc", iconColor: "accent-purple" },
 ];
 
 const YEAR_ICONS = [
@@ -22,6 +22,7 @@ const YEAR_ICONS = [
 const BOX_COLORS = ["lab-teal", "periodic-orange", "answer-green", "accent-purple", "accent-blue", "lab-teal-light"];
 
 export default function Materials() {
+  const { t, localize } = useLanguage();
   const [dashboardBoxes, setDashboardBoxes] = useState([]);
   const [specialSections, setSpecialSections] = useState([]);
 
@@ -40,21 +41,20 @@ export default function Materials() {
   return (
     <PageLayout>
       <PageHeader
-        badge="Study Materials"
-        title="Materials"
-        subtitle="Browse study materials organized by academic year"
-        breadcrumbs={[{ to: "/", label: "Home" }, { label: "Materials" }]}
+        badge={t("materials_badge")}
+        title={t("materials_title")}
+        subtitle={t("materials_subtitle")}
+        breadcrumbs={[{ to: "/", label: t("nav_home") }, { label: t("nav_materials") }]}
       />
 
-      {/* Year cards */}
       <div className="centered-card-grid">
         {YEARS.map((year, i) => (
           <Card
             key={year.id}
             to={`/materials/year/${year.id}`}
-            title={year.name}
-            subtitle={year.description}
-            badge={`Year ${year.id}`}
+            title={t(year.nameKey)}
+            subtitle={t(year.descriptionKey)}
+            badge={t("materials_year_badge", { year: year.id })}
             iconColor={year.iconColor}
             hoverColor={year.iconColor}
             className={`stagger-${i + 1}`}
@@ -67,10 +67,9 @@ export default function Materials() {
         ))}
       </div>
 
-      {/* Dashboard boxes from admin */}
       {dashboardBoxes.length > 0 && (
         <div className="mt-10">
-          <h2 className="font-display font-bold text-xl sm:text-2xl text-chalkboard mb-5">More Resources</h2>
+          <h2 className="font-display font-bold text-xl sm:text-2xl text-chalkboard mb-5">{t("materials_more_resources")}</h2>
           <div className="centered-card-grid">
             {dashboardBoxes.map((box, i) => {
               const color = BOX_COLORS[i % BOX_COLORS.length];
@@ -79,8 +78,8 @@ export default function Materials() {
                   key={box.id}
                   to={box.link ? undefined : `/materials/box/${box.id}`}
                   externalLink={box.link || undefined}
-                  title={box.title}
-                  subtitle={box.description || box.title_ar}
+                  title={localize(box, "title", "title_ar")}
+                  subtitle={localize(box, "description", "description_ar") || localize(box, "title", "title_ar")}
                   iconColor={color}
                   hoverColor={color}
                   className={`stagger-${Math.min(i + 1, 8)}`}
@@ -96,10 +95,9 @@ export default function Materials() {
         </div>
       )}
 
-      {/* Special sections */}
       {specialSections.length > 0 && (
         <div className="mt-10">
-          <h2 className="font-display font-bold text-xl sm:text-2xl text-chalkboard mb-5">Special Sections</h2>
+          <h2 className="font-display font-bold text-xl sm:text-2xl text-chalkboard mb-5">{t("materials_special_sections")}</h2>
           <div className="centered-card-grid">
             {specialSections.map((section, i) => {
               const color = BOX_COLORS[(i + 3) % BOX_COLORS.length];
@@ -107,8 +105,8 @@ export default function Materials() {
                 <Card
                   key={section.id}
                   to={`/materials/section/${section.slug}`}
-                  title={section.name_en}
-                  subtitle={section.name_ar}
+                  title={localize(section, "name_en", "name_ar")}
+                  subtitle={localize(section, "description_en", "description_ar")}
                   iconColor={color}
                   hoverColor={color}
                   className={`stagger-${Math.min(i + 1, 8)}`}

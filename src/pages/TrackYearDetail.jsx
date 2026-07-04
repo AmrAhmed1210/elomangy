@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import Fuse from "fuse.js";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function TrackYearDetail() {
+  const { t, localize } = useLanguage();
   const { year, trackSlug } = useParams();
   const [track, setTrack] = useState(null);
   const [semesters, setSemesters] = useState([]);
@@ -58,7 +60,7 @@ export default function TrackYearDetail() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">Loading...</p>
+        <p className="text-chalkboard-light">{t("common_loading")}</p>
       </div>
     </div>
   );
@@ -79,14 +81,14 @@ export default function TrackYearDetail() {
   return (
     <PageLayout>
       <PageHeader
-        badge={track.name}
-        title={track.name}
-        subtitle={track.name_ar}
+        badge={localize(track, "name", "name_ar")}
+        title={localize(track, "name", "name_ar")}
+        subtitle={localize(track, "description", "description_ar")}
         breadcrumbs={[
-          { to: "/", label: "Home" },
-          { to: "/materials", label: "Materials" },
-          { to: `/materials/year/${year}`, label: `Year ${year}` },
-          { label: track.name },
+          { to: "/", label: t("nav_home") },
+          { to: "/materials", label: t("nav_materials") },
+          { to: `/materials/year/${year}`, label: t("materials_year_badge", { year }) },
+          { label: localize(track, "name", "name_ar") },
         ]}
       />
 
@@ -99,7 +101,7 @@ export default function TrackYearDetail() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search semesters..."
+          placeholder={t("search_semesters")}
           className="search-input"
         />
       </div>
@@ -111,7 +113,7 @@ export default function TrackYearDetail() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
-          <p className="text-chalkboard-light font-medium">{searchQuery ? "No semesters found" : "No semesters yet"}</p>
+          <p className="text-chalkboard-light font-medium">{searchQuery ? t("no_semesters_found") : t("no_semesters_yet")}</p>
         </div>
       ) : (
         <div className="centered-card-grid">

@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import useSiteConfig from "../hooks/useSiteConfig";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function Home() {
   const { config } = useSiteConfig();
+  const { t } = useLanguage();
   const [departmentCount, setDepartmentCount] = useState(13);
 
   useEffect(() => {
@@ -26,30 +28,30 @@ export default function Home() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
               </svg>
-              FSCU Student Resources
+              {t("home_hero_badge")}
             </span>
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-chalkboard mb-5 font-display tracking-tight leading-[1.1]">
-            Welcome to{" "}
+            {t("home_welcome")}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-lab-teal via-lab-teal-light to-answer-green">
               3loomangy
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-chalkboard-light mb-8 max-w-2xl mx-auto leading-relaxed">
-            Your study resource hub for Faculty of Science, Cairo University
+            {t("home_subtitle")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/materials" className="btn-primary group">
-              Browse Materials
+              {t("home_browse_materials")}
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
             <Link to="/team" className="btn-secondary">
-              Team Work
+              {t("home_team_work")}
             </Link>
             <Link to="/training-sessions" className="btn-secondary">
-              Training Sessions
+              {t("home_training_sessions")}
             </Link>
           </div>
         </div>
@@ -58,17 +60,17 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center mb-16 sm:mb-24">
           <div className="space-y-5">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-chalkboard font-display leading-tight">
-              Everything you need,{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-lab-teal to-answer-green">organized</span>
+              {t("home_value_title")}{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-lab-teal to-answer-green">{t("home_value_highlight")}</span>
             </h2>
             <p className="text-base sm:text-lg text-chalkboard-light leading-relaxed">
-              Summaries, lecture notes, and past exams — sorted by department, semester, and course. No more digging through WhatsApp groups.
+              {t("home_value_subtitle")}
             </p>
             <div className="flex items-center gap-5 pt-2">
               {[
-                { value: `${departmentCount}+`, label: "Departments" },
-                { value: "100s", label: "Courses" },
-                { value: "Free", label: "Forever" },
+                { value: `${departmentCount}+`, label: t("home_departments") },
+                { value: "100s", label: t("home_courses") },
+                { value: t("home_free_forever"), label: "" },
               ].map((stat, i) => (
                 <div key={stat.label} className="flex items-center gap-5">
                   {i > 0 && <div className="w-px h-10 bg-graph-grid" />}
@@ -83,10 +85,10 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {[
-              { title: "Organized by Track", desc: "Find your department and semester instantly", color: "lab-teal", to: "/materials", icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" },
-              { title: "Curated Materials", desc: "Summaries and exams from students who took the course", color: "periodic-orange", to: "/materials", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-              { title: "Diploma Info", desc: "Requirements and materials for faculty diplomas", color: "answer-green", to: "/diplomas", icon: "M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" },
-              { title: "Training Sessions", desc: "Video tutorials and skill-building workshops", color: "accent-purple", to: "/training-sessions", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+              { title: t("home_organized_track"), desc: t("home_organized_track_desc"), color: "lab-teal", to: "/materials", icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" },
+              { title: t("home_curated_materials"), desc: t("home_curated_materials_desc"), color: "periodic-orange", to: "/materials", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+              { title: t("home_diploma_info"), desc: t("home_diploma_info_desc"), color: "answer-green", to: "/diplomas", icon: "M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" },
+              { title: t("home_training_info"), desc: t("home_training_info_desc"), color: "accent-purple", to: "/training-sessions", icon: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
             ].map((item, i) => {
               const colorMap = {
                 "lab-teal": { bg: "bg-lab-teal/8", text: "text-lab-teal", hover: "group-hover:text-lab-teal" },
@@ -117,8 +119,8 @@ export default function Home() {
         {/* Social CTA */}
         <div className="glass-card-dark rounded-2xl p-6 sm:p-10">
           <div className="text-center mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 font-display">Connect with us</h3>
-            <p className="text-lab-teal-light/80 text-sm sm:text-base">Follow us for updates, tips, and new materials</p>
+            <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 font-display">{t("home_connect_title")}</h3>
+            <p className="text-lab-teal-light/80 text-sm sm:text-base">{t("home_connect_subtitle")}</p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             {config.facebookUrl && <SocialButton href={config.facebookUrl} label="Facebook" />}

@@ -4,8 +4,10 @@ import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function Diplomas() {
+  const { t, localize } = useLanguage();
   const [diplomas, setDiplomas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,16 +37,16 @@ export default function Diplomas() {
   return (
     <PageLayout>
       <PageHeader
-        badge="Diploma Programs"
+        badge={t("diplomas_badge")}
         badgeColor="answer-green"
-        title="Diplomas"
-        subtitle="Choose a diploma to open its details page and study materials."
-        breadcrumbs={[{ to: "/", label: "Home" }, { label: "Diplomas" }]}
+        title={t("diplomas_title")}
+        subtitle={t("diplomas_subtitle")}
+        breadcrumbs={[{ to: "/", label: t("nav_home") }, { label: t("nav_diplomas") }]}
       />
 
       {diplomas.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-graph-grid bg-[var(--surface-card)] py-16 text-center text-chalkboard-light">
-          No diplomas yet
+          {t("diplomas_empty")}
         </div>
       ) : (
         <div className="centered-card-grid">
@@ -52,9 +54,9 @@ export default function Diplomas() {
             <Card
               key={diploma.id}
               to={`/diplomas/${diploma.slug}`}
-              title={diploma.name}
-              subtitle={diploma.name_ar}
-              badge="Diploma"
+              title={localize(diploma, "name", "name_ar")}
+              subtitle={localize(diploma, "description", "description_ar")}
+              badge={t("diplomas_badge_single")}
               hoverColor="answer-green"
               className={`stagger-${Math.min(index + 1, 8)}`}
             />
@@ -66,20 +68,22 @@ export default function Diplomas() {
 }
 
 function LoadingDiplomas() {
+  const { t } = useLanguage();
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-b-4 border-lab-teal" />
-        <p className="text-lg text-chalkboard-light">Loading...</p>
+        <p className="text-lg text-chalkboard-light">{t("common_loading")}</p>
       </div>
     </div>
   );
 }
 
 function ErrorState({ error }) {
+  const { t } = useLanguage();
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <p className="text-lg font-medium text-periodic-orange">Error: {error}</p>
+      <p className="text-lg font-medium text-periodic-orange">{t("common_error_prefix")}: {error}</p>
     </div>
   );
 }

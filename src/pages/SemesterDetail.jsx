@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import Card from "../components/common/Card";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import Fuse from "fuse.js";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function SemesterDetail() {
+  const { t, localize } = useLanguage();
   const { year, trackSlug, semesterId } = useParams();
   const [track, setTrack] = useState(null);
   const [semester, setSemester] = useState(null);
@@ -67,7 +69,7 @@ export default function SemesterDetail() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">Loading...</p>
+        <p className="text-chalkboard-light">{t("common_loading")}</p>
       </div>
     </div>
   );
@@ -86,11 +88,11 @@ export default function SemesterDetail() {
   );
 
   const breadcrumbs = [
-    { to: "/", label: "Home" },
-    { to: "/materials", label: "Materials" },
+    { to: "/", label: t("nav_home") },
+    { to: "/materials", label: t("nav_materials") },
   ];
-  if (year) breadcrumbs.push({ to: `/materials/year/${year}`, label: `Year ${year}` });
-  if (track && trackSlug) breadcrumbs.push({ to: `/materials/year/${year}/${trackSlug}`, label: track.name });
+  if (year) breadcrumbs.push({ to: `/materials/year/${year}`, label: t("materials_year_badge", { year }) });
+  if (track && trackSlug) breadcrumbs.push({ to: `/materials/year/${year}/${trackSlug}`, label: localize(track, "name", "name_ar") });
   breadcrumbs.push({ label: semester.label });
 
   return (
@@ -98,7 +100,7 @@ export default function SemesterDetail() {
       <PageHeader
         badge={semester.label}
         title={semester.label}
-        subtitle={track ? track.name : undefined}
+        subtitle={track ? localize(track, "name", "name_ar") : undefined}
         breadcrumbs={breadcrumbs}
       />
 
@@ -111,7 +113,7 @@ export default function SemesterDetail() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search courses..."
+          placeholder={t("search_courses")}
           className="search-input"
         />
       </div>
@@ -123,7 +125,7 @@ export default function SemesterDetail() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
-          <p className="text-chalkboard-light font-medium">{searchQuery ? "No courses found" : "No courses yet"}</p>
+          <p className="text-chalkboard-light font-medium">{searchQuery ? t("no_courses_found") : t("no_courses_yet")}</p>
         </div>
       ) : (
         <div className="centered-card-grid">
@@ -132,7 +134,7 @@ export default function SemesterDetail() {
               key={course.id}
               to={course.link ? undefined : `/materials/course/${course.id}`}
               externalLink={course.link || undefined}
-              title={course.name}
+              title={localize(course, "name", "name_ar")}
               badge={course.code}
               iconColor="lab-teal-light"
               hoverColor="lab-teal-light"

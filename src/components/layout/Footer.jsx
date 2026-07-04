@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import useSiteConfig from "../../hooks/useSiteConfig";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 export default function Footer() {
   const { config } = useSiteConfig();
   const { isAdmin } = useAuth();
+  const { t } = useLanguage();
   const waLink = config.whatsappNumber
     ? `https://wa.me/${config.whatsappNumber.replace(/\D/g, "")}`
     : null;
 
   return (
-    <footer className="relative mt-auto border-t border-graph-grid bg-white/70 backdrop-blur-md">
+    <footer className="relative mt-auto border-t border-graph-grid bg-white/70 backdrop-blur-md dark:bg-slate-950/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
@@ -18,19 +20,19 @@ export default function Footer() {
               3loomangy
             </Link>
             <p className="mt-3 text-sm text-chalkboard-light leading-relaxed max-w-xs">
-              Student-run study resource hub for Faculty of Science, Cairo University.
+              {t("footer_description")}
             </p>
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-chalkboard mb-4">Explore</h4>
+            <h4 className="font-display font-semibold text-chalkboard mb-4">{t("footer_explore")}</h4>
             <ul className="space-y-2 text-sm">
               {[
-                { to: "/materials", label: "Materials" },
-                { to: "/diplomas", label: "Diplomas" },
-                { to: "/training-sessions", label: "Training Sessions" },
-                { to: "/about", label: "About FSCU" },
-                ...(isAdmin ? [{ to: "/admin", label: "Admin dashboard" }] : []),
+                { to: "/materials", label: t("nav_materials") },
+                { to: "/diplomas", label: t("nav_diplomas") },
+                { to: "/training-sessions", label: t("nav_training") },
+                { to: "/about", label: t("footer_about_fscu") },
+                ...(isAdmin ? [{ to: "/admin", label: t("footer_admin_dashboard") }] : []),
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link to={to} className="text-chalkboard-light hover:text-lab-teal transition-colors">
@@ -42,7 +44,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold text-chalkboard mb-4">Connect</h4>
+            <h4 className="font-display font-semibold text-chalkboard mb-4">{t("footer_connect")}</h4>
             <div className="flex flex-wrap gap-3">
               {config.facebookUrl && (
                 <SocialIcon href={config.facebookUrl} label="Facebook">
@@ -80,8 +82,8 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-graph-grid flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-chalkboard-light">
-          <p>© {new Date().getFullYear()} 3loomangy — Built by FSCU students</p>
-          <p className="font-mono-smallcaps">Faculty of Science, Cairo University</p>
+          <p>© {new Date().getFullYear()} 3loomangy - {t("footer_built_by")}</p>
+          <p className="font-mono-smallcaps">{t("footer_faculty")}</p>
         </div>
       </div>
     </footer>

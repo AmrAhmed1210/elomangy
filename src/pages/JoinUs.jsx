@@ -2,10 +2,15 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+import { useLanguage } from "../contexts/LanguageContext";
 
-const FACULTY_LEVELS = ["First Year", "Second Year", "Third Year", "Fourth Year"];
+const FACULTY_LEVELS = {
+  en: ["First Year", "Second Year", "Third Year", "Fourth Year"],
+  ar: ["أولى", "تانية", "تالتة", "رابعة"],
+};
 
 export default function JoinUs() {
+  const { t, language } = useLanguage();
   const [joinConfig, setJoinConfig] = useState({ is_open: false, message: "" });
   const [configLoading, setConfigLoading] = useState(true);
   const [formData, setFormData] = useState({
@@ -33,9 +38,10 @@ export default function JoinUs() {
   }, []);
 
   function friendlyError(error) {
-    if (error.code === "23505") return "This email has already submitted a request.";
-    if (error.message.includes("duplicate")) return "This email has already submitted a request.";
-    return error.message || "Something went wrong. Please try again.";
+    if (error.code === "23505" || error.message.includes("duplicate")) {
+      return language === "ar" ? "الإيميل ده بعت طلب قبل كده." : "This email has already submitted a request.";
+    }
+    return error.message || (language === "ar" ? "حصلت مشكلة. جرّب تاني." : "Something went wrong. Please try again.");
   }
 
   async function handleSubmit(e) {
@@ -55,7 +61,7 @@ export default function JoinUs() {
 
       if (error) throw error;
 
-      setMessage({ type: "success", text: "Your request has been submitted successfully! We'll get back to you soon." });
+      setMessage({ type: "success", text: t("join_success") });
       setFormData({ name: "", email: "", phone: "", faculty_level: "", message: "" });
     } catch (err) {
       setMessage({ type: "error", text: friendlyError(err) });
@@ -74,7 +80,7 @@ export default function JoinUs() {
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
             <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-b-4 border-lab-teal" />
-            <p className="text-lg text-chalkboard-light">Loading...</p>
+            <p className="text-lg text-chalkboard-light">{t("common_loading")}</p>
           </div>
         </div>
       </PageLayout>
@@ -85,11 +91,11 @@ export default function JoinUs() {
     return (
       <PageLayout>
         <PageHeader
-          badge="Join Us"
+          badge={t("join_title")}
           badgeColor="periodic-orange"
-          title="Join Our Team"
-          subtitle={joinConfig.message || "Applications are currently closed. Check back later!"}
-          breadcrumbs={[{ to: "/", label: "Home" }, { label: "Join Us" }]}
+          title={t("join_title")}
+          subtitle={joinConfig.message || t("join_closed")}
+          breadcrumbs={[{ to: "/", label: t("nav_home") }, { label: t("nav_join_us") }]}
         />
         <div className="max-w-2xl mx-auto">
           <div className="glass-card p-8 text-center">
@@ -98,9 +104,9 @@ export default function JoinUs() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="font-display text-2xl font-bold text-chalkboard mb-3">Applications Closed</h3>
+            <h3 className="font-display text-2xl font-bold text-chalkboard mb-3">{t("join_closed")}</h3>
             <p className="text-chalkboard-light leading-relaxed">
-              {joinConfig.message || "We are not currently accepting new team applications. Please check back later for updates."}
+              {joinConfig.message || t("join_closed")}
             </p>
           </div>
         </div>
@@ -111,11 +117,11 @@ export default function JoinUs() {
   return (
     <PageLayout>
       <PageHeader
-        badge="Join Us"
+        badge={t("join_title")}
         badgeColor="periodic-orange"
-        title="Join Our Team"
-        subtitle="Fill out the form below to join our team and contribute to 3loomangy"
-        breadcrumbs={[{ to: "/", label: "Home" }, { label: "Join Us" }]}
+        title={t("join_title")}
+        subtitle={t("join_subtitle")}
+        breadcrumbs={[{ to: "/", label: t("nav_home") }, { label: t("nav_join_us") }]}
       />
 
       <div className="max-w-2xl mx-auto">
@@ -135,7 +141,7 @@ export default function JoinUs() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-chalkboard mb-2">
-                Name *
+                {t("join_name")} *
               </label>
               <input
                 type="text"
@@ -145,13 +151,13 @@ export default function JoinUs() {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard placeholder:text-chalkboard-light/50 focus:outline-none focus:ring-2 focus:ring-lab-teal/50 focus:border-lab-teal transition-all"
-                placeholder="Your full name"
+                placeholder={t("join_name")}
               />
             </div>
 
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-chalkboard mb-2">
-                Email *
+                {t("join_email")} *
               </label>
               <input
                 type="email"
@@ -167,7 +173,7 @@ export default function JoinUs() {
 
             <div>
               <label htmlFor="phone" className="block text-sm font-semibold text-chalkboard mb-2">
-                Phone (optional)
+                {t("join_phone")}
               </label>
               <input
                 type="tel"
@@ -182,7 +188,7 @@ export default function JoinUs() {
 
             <div>
               <label htmlFor="faculty_level" className="block text-sm font-semibold text-chalkboard mb-2">
-                Faculty Level *
+                {t("join_year")} *
               </label>
               <select
                 id="faculty_level"
@@ -192,8 +198,8 @@ export default function JoinUs() {
                 required
                 className="w-full px-4 py-3 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard focus:outline-none focus:ring-2 focus:ring-lab-teal/50 focus:border-lab-teal transition-all"
               >
-                <option value="">Select your level</option>
-                {FACULTY_LEVELS.map((level) => (
+                <option value="">{t("join_year")}</option>
+                {FACULTY_LEVELS[language].map((level) => (
                   <option key={level} value={level}>
                     {level}
                   </option>
@@ -203,7 +209,7 @@ export default function JoinUs() {
 
             <div>
               <label htmlFor="message" className="block text-sm font-semibold text-chalkboard mb-2">
-                Message (optional)
+                {t("join_reason")}
               </label>
               <textarea
                 id="message"
@@ -212,7 +218,7 @@ export default function JoinUs() {
                 onChange={handleChange}
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard placeholder:text-chalkboard-light/50 focus:outline-none focus:ring-2 focus:ring-lab-teal/50 focus:border-lab-teal transition-all resize-none"
-                placeholder="Tell us about yourself and why you want to join..."
+                placeholder={t("join_reason")}
               />
             </div>
 
@@ -221,7 +227,7 @@ export default function JoinUs() {
               disabled={submitting}
               className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {submitting ? "Submitting..." : "Submit Request"}
+              {submitting ? t("common_loading") : t("join_submit")}
             </button>
           </form>
         </div>
