@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/layout/Footer";
 import LaunchScreen from "./components/LaunchScreen";
+import ScrollToTop from "./components/ScrollToTop";
 import ProtectedAdminRoute from "./components/auth/ProtectedAdminRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -34,6 +35,7 @@ function App() {
         <AuthProvider>
           <BrowserRouter>
             <LaunchScreen />
+            <ScrollToTop />
             <div className="min-h-screen flex flex-col relative">
               <div className="animated-bg">
                 <div className="animated-circle animated-circle-1" />
