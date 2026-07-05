@@ -7,9 +7,11 @@ import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import EmptyState from "../components/common/EmptyState";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function SessionDetail() {
   const { sessionId } = useParams();
+  const { t, localize } = useLanguage();
   const [session, setSession] = useState(null);
   const [categories, setCategories] = useState([]);
   const [videos, setVideos] = useState([]);
@@ -88,7 +90,7 @@ export default function SessionDetail() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-chalkboard font-semibold">Something went a bit wrong on our end</p>
+            <p className="text-chalkboard font-semibold">{t("common_error")}</p>
             <p className="text-chalkboard-light text-sm mt-1">{error}</p>
           </div>
         </div>

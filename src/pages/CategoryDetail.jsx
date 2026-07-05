@@ -4,9 +4,11 @@ import { supabase } from "../lib/supabase";
 import VideoCard from "../components/training/VideoCard";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import EmptyState from "../components/common/EmptyState";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function CategoryDetail() {
   const { sessionId, categoryId } = useParams();
+  const { t } = useLanguage();
   const [session, setSession] = useState(null);
   const [category, setCategory] = useState(null);
   const [videos, setVideos] = useState([]);
@@ -70,9 +72,9 @@ export default function CategoryDetail() {
       <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
         <div className="max-w-7xl mx-auto">
           <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
-            <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
+            <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>
             <span className="mx-2 text-chalkboard-light/50">/</span>
-            <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
+            <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">{t("nav_training")}</Link>
             <span className="mx-2 text-chalkboard-light/50">/</span>
             <span className="text-lab-teal">One sec, fetching that for you...</span>
           </nav>
@@ -92,9 +94,9 @@ export default function CategoryDetail() {
       <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
         <div className="max-w-7xl mx-auto">
           <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
-            <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
+            <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>
             <span className="mx-2 text-chalkboard-light/50">/</span>
-            <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
+            <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">{t("nav_training")}</Link>
             <span className="mx-2 text-chalkboard-light/50">/</span>
             <span className="text-lab-teal">Error</span>
           </nav>
@@ -119,9 +121,9 @@ export default function CategoryDetail() {
     <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
       <div className="max-w-7xl mx-auto">
         <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
-          <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
+          <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>
           <span className="mx-2 text-chalkboard-light/50">/</span>
-          <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
+          <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">{t("nav_training")}</Link>
           <span className="mx-2 text-chalkboard-light/50">/</span>
           <Link to={`/training-sessions/${sessionId}`} className="hover:text-lab-teal transition-colors">{session.title}</Link>
           <span className="mx-2 text-chalkboard-light/50">/</span>

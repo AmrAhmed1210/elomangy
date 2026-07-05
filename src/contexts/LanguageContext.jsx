@@ -8,6 +8,7 @@ const translations = {
     nav_training: "Training",
     nav_diplomas: "Diplomas",
     nav_team: "Team",
+    nav_about_team: "Meet the Team",
     nav_join_us: "Join Us",
     nav_admin: "Admin",
     nav_about: "About",
@@ -126,6 +127,8 @@ const translations = {
     diplomas_subtitle: "Choose a diploma to open its details page and study materials.",
     diplomas_empty: "No diplomas yet",
     diplomas_badge_single: "Diploma",
+    diplomas_eligibility: "Eligibility",
+    diplomas_resources: "Resources",
 
     // Training
     training_badge: "Training Sessions",
@@ -146,6 +149,21 @@ const translations = {
     about_students_title: "Built by students, for students",
     about_students_body: "The site is built and maintained by FSCU students. All materials are curated by students who have actually taken these courses.",
     about_whatsapp: "Contact on WhatsApp",
+    about_team_cta: "Meet the Team",
+
+    // About Team
+    about_team_badge: "Team Structure",
+    about_team_title: "Meet the Team",
+    about_team_subtitle: "The committees that make 3loomangy work",
+    about_team_intro_title: "Our Committees",
+    about_team_intro_body: "3loomangy is organized into committees, each handling a specific part of our work. From content creation to media and technical support, every committee plays a role in helping students.",
+    about_team_no_committees: "No committees yet",
+    about_team_no_committees_desc: "Committees will appear here once they are added.",
+    about_team_head_label: "Committee Lead",
+    about_team_responsibilities: "Responsibilities",
+
+    // Join Us
+    join_team_cta_text: "Curious what committees make up the team?",
 
     // Footer
     footer_description: "Student-run study resource hub for Faculty of Science, Cairo University.",
@@ -187,6 +205,7 @@ const translations = {
     nav_training: "السيشنز",
     nav_diplomas: "الدبلومات",
     nav_team: "أعمال التيم",
+    nav_about_team: "اعرف التيم",
     nav_join_us: "انضم إلينا",
     nav_admin: "الإدارة",
     nav_about: "عن الموقع",
@@ -305,6 +324,8 @@ const translations = {
     diplomas_subtitle: "اختار الدبلومة وشوف التفاصيل والماتريال اللي تخصها.",
     diplomas_empty: "لسه مفيش دبلومات",
     diplomas_badge_single: "دبلومة",
+    diplomas_eligibility: "الشروط",
+    diplomas_resources: "الموارد",
 
     // Training
     training_badge: "السيشنز",
@@ -325,6 +346,21 @@ const translations = {
     about_students_title: "من الطلبة وللطلبة",
     about_students_body: "الموقع مبني وبيتحدث بواسطة طلبة FSCU. الماتريال متجمعة ومنظمة من طلبة دخلوا المواد دي فعلًا.",
     about_whatsapp: "تواصل على واتساب",
+    about_team_cta: "اعرف التيم",
+
+    // About Team
+    about_team_badge: "هيكل التيم",
+    about_team_title: "اعرف التيم",
+    about_team_subtitle: "اللجان اللي بتشتغل في علومنجي",
+    about_team_intro_title: "لجاننا",
+    about_team_intro_body: "علومنجي منظم في لجان، كل لجنة مسؤولة عن جزء معين من الشغل. من الماتريال والميديا للدعم الفني، كل لجنة ليها دور في مساعدة الطلبة.",
+    about_team_no_committees: "لسه مفيش لجان",
+    about_team_no_committees_desc: "اللجان هتظهر هنا أول ما تتنزل.",
+    about_team_head_label: "قائد اللجنة",
+    about_team_responsibilities: "المسؤوليات",
+
+    // Join Us
+    join_team_cta_text: "عايز تعرف اللجان اللي بتشكل التيم؟",
 
     // Footer
     footer_description: "ماتريال وروابط دراسية معمولين بطلبة علوم لطلبة علوم.",

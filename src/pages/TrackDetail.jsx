@@ -6,9 +6,11 @@ import ResourceLinkList from "../components/ResourceLinkList";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import MascotLoader from "../components/common/MascotLoader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function TrackDetail() {
   const { trackSlug } = useParams();
+  const { t, localize } = useLanguage();
   const [track, setTrack] = useState(null);
   const [semesters, setSemesters] = useState([]);
   const [resourceLinks, setResourceLinks] = useState([]);
@@ -60,7 +62,7 @@ export default function TrackDetail() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <MascotLoader text="One sec, fetching that for you..." />
+        <MascotLoader text={t("common_loading")} />
       </div>
     </div>
   );
@@ -81,13 +83,13 @@ export default function TrackDetail() {
   return (
     <PageLayout>
       <PageHeader
-        badge={track.name}
-        title={track.name}
+        badge={localize(track, "name", "name_ar")}
+        title={localize(track, "name", "name_ar")}
         subtitle={track.name_ar}
         breadcrumbs={[
-          { to: "/", label: "Home" },
-          { to: "/materials", label: "Materials" },
-          { label: track.name },
+          { to: "/", label: t("nav_home") },
+          { to: "/materials", label: t("nav_materials") },
+          { label: localize(track, "name", "name_ar") },
         ]}
       />
 

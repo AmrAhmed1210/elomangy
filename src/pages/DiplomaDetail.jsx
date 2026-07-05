@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import ResourceLinkList from "../components/ResourceLinkList";
+import PageLayout from "../components/layout/PageLayout";
+import PageHeader from "../components/layout/PageHeader";
 import MascotLoader from "../components/common/MascotLoader";
+import EmptyState from "../components/common/EmptyState";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export default function DiplomaDetail() {
   const { slug } = useParams();
+  const { t, localize } = useLanguage();
   const [diploma, setDiploma] = useState(null);
   const [resourceLinks, setResourceLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +19,6 @@ export default function DiplomaDetail() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch diploma by slug
         const { data: diplomaData, error: diplomaError } = await supabase
           .from('diplomas')
           .select('*')
@@ -28,7 +32,6 @@ export default function DiplomaDetail() {
         }
         setDiploma(diplomaData);
 
-        // Fetch resource links for this diploma
         const { data: linksData, error: linksError } = await supabase
           .from('resource_links')
           .select('*')
@@ -47,35 +50,79 @@ export default function DiplomaDetail() {
     fetchData();
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 flex items-center justify-center"><div className="text-center"><MascotLoader text="One sec, fetching that for you..." size="lg" /></div></div>;
-  if (error) return <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 flex items-center justify-center"><div className="text-center"><img src="/logo-mark.png" alt="" className="w-16 h-16 object-contain mx-auto mb-4 -rotate-12 opacity-80" /><p className="text-chalkboard font-semibold">Something went a bit wrong on our end</p><p className="text-chalkboard-light text-sm mt-1">{error}</p></div></div>;
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <MascotLoader text={t("common_loading")} />
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="w-14 h-14 bg-periodic-orange/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg className="w-7 h-7 text-periodic-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-chalkboard font-semibold">{t("common_error")}</p>
+            <p className="text-chalkboard-light text-sm mt-1">{error}</p>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
-      <div className="max-w-4xl mx-auto">
-        <nav className="mb-8 text-sm text-chalkboard-light">
-          <Link to="/" className="hover:text-lab-teal transition-colors">Home</Link>
-          <span className="mx-2">&gt;</span>
-          <Link to="/diplomas" className="hover:text-lab-teal transition-colors">Diplomas</Link>
-          <span className="mx-2">&gt;</span>
-          <span>{diploma.name}</span>
-        </nav>
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-chalkboard mb-2 font-display">{diploma.name}</h1>
-          <p className="text-2xl text-chalkboard-light font-medium mb-6" dir="rtl">{diploma.nameAr}</p>
-          <div className="bg-white border border-graph-grid rounded-2xl p-6 shadow-sm mb-6">
+    <PageLayout>
+      <PageHeader
+        badge={t("diplomas_badge_single")}
+        badgeColor="answer-green"
+        title={localize(diploma, "name", "name_ar")}
+        subtitle={diploma.name_ar}
+        breadcrumbs={[
+          { to: "/", label: t("nav_home") },
+          { to: "/diplomas", label: t("nav_diplomas") },
+          { label: localize(diploma, "name", "name_ar") },
+        ]}
+      />
+
+      <div className="max-w-4xl mx-auto space-y-6">
+        {diploma.description && (
+          <div className="glass-card p-6 sm:p-8">
             <p className="text-chalkboard leading-relaxed text-lg">{diploma.description}</p>
           </div>
-          {diploma.eligibility && (
-            <div className="bg-white border border-graph-grid rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-chalkboard mb-3">Eligibility</h2>
-              <p className="text-chalkboard leading-relaxed">{diploma.eligibility}</p>
-            </div>
-          )}
-        </div>
-        <h2 className="text-2xl font-semibold text-chalkboard mb-6">Resources</h2>
-        <ResourceLinkList links={resourceLinks} />
+        )}
+
+        {diploma.eligibility && (
+          <div className="glass-card p-6 sm:p-8">
+            <h2 className="font-display text-xl font-semibold text-chalkboard mb-3">{t("diplomas_eligibility")}</h2>
+            <p className="text-chalkboard leading-relaxed">{diploma.eligibility}</p>
+          </div>
+        )}
+
+        {resourceLinks.length > 0 && (
+          <div>
+            <h2 className="font-display text-2xl font-bold text-chalkboard mb-6">{t("diplomas_resources")}</h2>
+            <ResourceLinkList links={resourceLinks} />
+          </div>
+        )}
+
+        {resourceLinks.length === 0 && (
+          <EmptyState 
+            title={t("no_materials_yet")} 
+            description={t("check_back_later")} 
+            variant="excited" 
+          />
+        )}
       </div>
-    </div>
+    </PageLayout>
   );
 }

@@ -15,6 +15,7 @@ const ADMIN_TABS = [
   { key: "diplomas", label: "Diplomas" },
   { key: "training", label: "Training" },
   { key: "team", label: "Team Work" },
+  { key: "team-committees", label: "Team Committees" },
   { key: "join-requests", label: "Join Requests" },
   { key: "sections", label: "Special Sections" },
   { key: "contact", label: "Contact & Links" },
@@ -40,6 +41,7 @@ const emptyDashboardBox = { title: "", title_ar: "", description: "", link: "" }
 const emptyProject = { title: "", description: "", cover_image_url: "", link: "", date: "" };
 const emptyEvent = { title: "", description: "", date: "", location: "", register_link: "", image_url: "", is_past: false, registration_open: true, registration_message: "" };
 const emptyService = { title: "", description: "", contact_link: "" };
+const emptyCommittee = { name: "", name_ar: "", description: "", description_ar: "", responsibilities: "", responsibilities_ar: "", head_name: "", contact_link: "", icon: "" };
 const emptySection = { name_en: "", name_ar: "", slug: "" };
 const emptySocialLink = { label: "", url: "" };
 const emptyContact = { whatsapp_number: "", facebook_url: "", youtube_url: "", linkedin_url: "", whatsapp_channel_url: "" };
@@ -95,6 +97,7 @@ export default function AdminDashboard() {
         {activeTab === "diplomas" && <DiplomasManager />}
         {activeTab === "training" && <TrainingManager />}
         {activeTab === "team" && <TeamWorkManager />}
+        {activeTab === "team-committees" && <TeamCommitteesManager />}
         {activeTab === "join-requests" && <JoinRequestsManager />}
         {activeTab === "sections" && <SpecialSectionsManager />}
         {activeTab === "contact" && <ContactManager />}
@@ -1452,6 +1455,162 @@ function TeamWorkManager() {
           </div>
         </AdminPanel>
       )}
+    </section>
+  );
+}
+
+const emptyTeamIntroForm = {
+  team_intro_title: "",
+  team_intro_title_ar: "",
+  team_intro_body: "",
+  team_intro_body_ar: "",
+};
+
+const TEAM_INTRO_COLUMNS = Object.keys(emptyTeamIntroForm).join(", ");
+
+function TeamCommitteesManager() {
+  const [introForm, setIntroForm] = useState(emptyTeamIntroForm);
+  const [committees, setCommittees] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const [committeeForm, setCommitteeForm] = useState(emptyCommittee);
+  const [editingCommitteeId, setEditingCommitteeId] = useState("");
+  const showMessage = useCallback((type, text) => setMessage({ type, text }), []);
+
+  const loadIntro = useCallback(async () => {
+    const { data, error } = await supabase.from("site_config").select(TEAM_INTRO_COLUMNS).eq("id", 1).single();
+    if (error) {
+      setMessage({ type: "error", text: friendlyError(error.message) });
+    } else if (data) {
+      const sanitized = Object.fromEntries(
+        Object.keys(emptyTeamIntroForm).map((key) => [key, data[key] ?? ""])
+      );
+      setIntroForm(sanitized);
+    }
+  }, [showMessage]);
+
+  const loadCommittees = useCallback(async () => {
+    const { data, error } = await supabase.from("team_committees").select("*").order("order", { ascending: true });
+    if (error) showMessage("error", friendlyError(error.message));
+    else setCommittees(data ?? []);
+  }, [showMessage]);
+
+  useEffect(() => {
+    Promise.all([loadIntro(), loadCommittees()]).finally(() => setLoading(false));
+  }, [loadIntro, loadCommittees]);
+
+  async function saveIntro(event) {
+    event.preventDefault();
+    setBusy(true);
+    const payload = Object.fromEntries(
+      Object.entries(introForm).map(([key, value]) => [key, value.trim() ? value : null])
+    );
+    const { error } = await supabase.from("site_config").update(payload).eq("id", 1);
+    setMessage(error ? { type: "error", text: friendlyError(error.message) } : { type: "success", text: "Intro saved." });
+    setBusy(false);
+  }
+
+  async function saveCommittee(event) {
+    event.preventDefault();
+    const name = committeeForm.name.trim();
+    if (!name) { showMessage("error", "Please enter a committee name."); return; }
+    setBusy(true);
+    const payload = Object.fromEntries(
+      Object.entries(committeeForm).map(([key, value]) => [key, value.trim() ? value : null])
+    );
+    if (editingCommitteeId) {
+      const { error } = await supabase.from("team_committees").update(payload).eq("id", editingCommitteeId);
+      setMessage(error ? { type: "error", text: friendlyError(error.message) } : { type: "success", text: "Committee updated." });
+    } else {
+      const { error } = await supabase.from("team_committees").insert([{ ...payload, order: committees.length }]);
+      setMessage(error ? { type: "error", text: friendlyError(error.message) } : { type: "success", text: "Committee added." });
+    }
+    if (!message.type) {
+      setCommitteeForm(emptyCommittee);
+      setEditingCommitteeId("");
+      loadCommittees();
+    }
+    setBusy(false);
+  }
+
+  function setIntro(key) {
+    return (value) => setIntroForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  if (loading) return <EmptyPrompt text="Loading team committees..." />;
+
+  return (
+    <section className="grid gap-5">
+      <HeaderPanel breadcrumb={["Team Committees"]} message={message} kicker="Team" title="Team committees admin" />
+      
+      {/* Intro Section */}
+      <form onSubmit={saveIntro} className="grid gap-5">
+        <AdminPanel title="Page Intro" description="Edit the intro text shown at the top of the Meet the Team page.">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextField label="Title (English)" value={introForm.team_intro_title} onChange={setIntro("team_intro_title")} placeholder="Meet the Team" />
+            <TextField label="Title (Arabic)" value={introForm.team_intro_title_ar} onChange={setIntro("team_intro_title_ar")} placeholder="اعرف تيم علومنجي" />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <TextareaField label="Body (English)" value={introForm.team_intro_body} onChange={setIntro("team_intro_body")} />
+            <TextareaField label="Body (Arabic)" value={introForm.team_intro_body_ar} onChange={setIntro("team_intro_body_ar")} />
+          </div>
+          <FormActions busy={busy} editing={false} createLabel="Save Intro" saveLabel="Save Intro" onCancel={() => {}} />
+        </AdminPanel>
+      </form>
+
+      {/* Committees Section */}
+      <AdminPanel title="Committees" description="Add, edit, and reorder team committees.">
+        <form onSubmit={saveCommittee} className="grid gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextField label="Name (English)" value={committeeForm.name} onChange={(name) => setCommitteeForm({ ...committeeForm, name })} placeholder="Committee name" />
+            <TextField label="Name (Arabic)" value={committeeForm.name_ar} onChange={(name_ar) => setCommitteeForm({ ...committeeForm, name_ar })} placeholder="اسم اللجنة" />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextareaField label="Description (English)" value={committeeForm.description} onChange={(description) => setCommitteeForm({ ...committeeForm, description })} />
+            <TextareaField label="Description (Arabic)" value={committeeForm.description_ar} onChange={(description_ar) => setCommitteeForm({ ...committeeForm, description_ar })} />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label>
+              <span className="text-sm font-medium text-slate-300">Responsibilities (English)</span>
+              <textarea
+                value={committeeForm.responsibilities}
+                onChange={(event) => setCommitteeForm({ ...committeeForm, responsibilities: event.target.value })}
+                rows={6}
+                className="mt-1 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
+              />
+            </label>
+            <label>
+              <span className="text-sm font-medium text-slate-300">Responsibilities (Arabic)</span>
+              <textarea
+                value={committeeForm.responsibilities_ar}
+                onChange={(event) => setCommitteeForm({ ...committeeForm, responsibilities_ar: event.target.value })}
+                rows={6}
+                dir="rtl"
+                className="mt-1 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
+              />
+            </label>
+          </div>
+          <TextField label="Head Name (optional)" value={committeeForm.head_name} onChange={(head_name) => setCommitteeForm({ ...committeeForm, head_name })} placeholder="Committee lead" />
+          <TextField label="Contact Link (optional)" type="url" value={committeeForm.contact_link} onChange={(contact_link) => setCommitteeForm({ ...committeeForm, contact_link })} placeholder="https://..." />
+          <TextField label="Icon (optional)" value={committeeForm.icon} onChange={(icon) => setCommitteeForm({ ...committeeForm, icon })} placeholder="emoji or icon key" />
+          <FormActions busy={busy} editing={Boolean(editingCommitteeId)} createLabel="+ Add Committee" saveLabel="Save Committee" onCancel={() => { setEditingCommitteeId(""); setCommitteeForm(emptyCommittee); }} />
+        </form>
+        <div className="mt-5">
+          {loading ? <LoadingRows /> : (
+            <AdminList
+              emptyText="No committees yet."
+              rows={committees}
+              getTitle={(c) => c.name}
+              getSubtitle={(c) => c.description}
+              onEdit={(c) => { setEditingCommitteeId(c.id); setCommitteeForm({ name: c.name ?? "", name_ar: c.name_ar ?? "", description: c.description ?? "", description_ar: c.description_ar ?? "", responsibilities: c.responsibilities ?? "", responsibilities_ar: c.responsibilities_ar ?? "", head_name: c.head_name ?? "", contact_link: c.contact_link ?? "", icon: c.icon ?? "" }); }}
+              onDelete={(c) => deleteRow("team_committees", c, c.name, loadCommittees, setBusy, showMessage)}
+              onMoveUp={(c) => moveRow("team_committees", committees, c, "up", loadCommittees, setBusy, showMessage)}
+              onMoveDown={(c) => moveRow("team_committees", committees, c, "down", loadCommittees, setBusy, showMessage)}
+            />
+          )}
+        </div>
+      </AdminPanel>
     </section>
   );
 }

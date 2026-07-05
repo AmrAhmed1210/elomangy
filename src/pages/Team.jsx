@@ -8,13 +8,15 @@ import { useLanguage } from "../contexts/LanguageContext";
 import MascotLoader from "../components/common/MascotLoader";
 
 const TEAM_TABS = [
+  { key: "committees", labelKey: "nav_about_team" },
   { key: "events", labelKey: "team_events" },
   { key: "services", labelKey: "team_services" },
 ];
 
 export default function Team() {
   const { t, localize } = useLanguage();
-  const [activeTab, setActiveTab] = useState("events");
+  const [activeTab, setActiveTab] = useState("committees");
+  const [committees, setCommittees] = useState([]);
   const [events, setEvents] = useState([]);
   const [services, setServices] = useState([]);
   const [eventNow, setEventNow] = useState(null);
@@ -24,15 +26,18 @@ export default function Team() {
   useEffect(() => {
     async function fetchTeamData() {
       try {
-        const [eventsData, servicesData, eventNowData] = await Promise.all([
+        const [committeesData, eventsData, servicesData, eventNowData] = await Promise.all([
+          supabase.from("team_committees").select("*").eq("is_active", true).order("order", { ascending: true }),
           supabase.from("team_events").select("*").order("date", { ascending: false }),
           supabase.from("team_services").select("*").order("order"),
           supabase.from("site_config").select("event_now_id").eq("id", 1).single(),
         ]);
 
+        if (committeesData.error) throw committeesData.error;
         if (eventsData.error) throw eventsData.error;
         if (servicesData.error) throw servicesData.error;
 
+        setCommittees(committeesData.data || []);
         setEvents(eventsData.data || []);
         setServices(servicesData.data || []);
         
@@ -145,6 +150,9 @@ export default function Team() {
         ))}
       </div>
 
+      {activeTab === "committees" && (
+        <CommitteesSection committees={committees} />
+      )}
       {activeTab === "events" && (
         <EventsSection upcomingEvents={upcomingEvents} pastEvents={pastEvents} />
       )}
@@ -273,6 +281,51 @@ function ServicesSection({ services }) {
           {service.contact_link && (
             <a
               href={service.contact_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-bold text-lab-teal hover:text-lab-teal-dark transition-colors"
+            >
+              {t("common_contact")}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CommitteesSection({ committees }) {
+  const { t, localize } = useLanguage();
+  
+  if (committees.length === 0) {
+    return <EmptyState title={t("about_team_no_committees")} description={t("about_team_no_committees_desc")} variant="excited" />;
+  }
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {committees.map((committee, index) => (
+        <div
+          key={committee.id}
+          className={`glass-card p-6 group hover:-translate-y-1 transition-all duration-300 stagger-${Math.min(index + 1, 8)}`}
+        >
+          {committee.icon && (
+            <div className="text-4xl mb-4">{committee.icon}</div>
+          )}
+          <h3 className="font-display text-xl font-bold text-chalkboard mb-2 group-hover:text-lab-teal transition-colors">
+            {localize(committee, "name", "name_ar")}
+          </h3>
+          <p className="text-sm text-chalkboard-light line-clamp-2 mb-4">{localize(committee, "description", "description_ar")}</p>
+          {committee.head_name && (
+            <p className="text-xs text-chalkboard-light mb-4">
+              <span className="font-semibold">{t("about_team_head_label")}:</span> {committee.head_name}
+            </p>
+          )}
+          {committee.contact_link && (
+            <a
+              href={committee.contact_link}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-bold text-lab-teal hover:text-lab-teal-dark transition-colors"

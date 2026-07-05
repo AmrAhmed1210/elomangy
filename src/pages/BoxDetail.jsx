@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import MascotLoader from "../components/common/MascotLoader";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const TYPE_CONFIG = {
   drive_folder: { label: "Drive Folder", icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z", color: "accent-blue" },
@@ -22,6 +23,7 @@ const COLOR_MAP = {
 
 export default function BoxDetail() {
   const { boxId } = useParams();
+  const { t, localize } = useLanguage();
   const [box, setBox] = useState(null);
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,8 +104,8 @@ export default function BoxDetail() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
-          <p className="text-chalkboard-light font-medium text-lg">No content yet</p>
-          <p className="text-sm text-chalkboard-light/70 mt-2">Check back later or contact the team</p>
+          <p className="text-chalkboard-light font-medium text-lg">{t("no_materials_yet")}</p>
+          <p className="text-sm text-chalkboard-light/70 mt-2">{t("check_back_later")}</p>
         </div>
       ) : (
         <div className="centered-card-grid">
