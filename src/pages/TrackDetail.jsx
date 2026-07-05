@@ -5,6 +5,7 @@ import Card from "../components/common/Card";
 import ResourceLinkList from "../components/ResourceLinkList";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
+import MascotLoader from "../components/common/MascotLoader";
 
 export default function TrackDetail() {
   const { trackSlug } = useParams();
@@ -59,8 +60,7 @@ export default function TrackDetail() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">Loading...</p>
+        <MascotLoader text="One sec, fetching that for you..." />
       </div>
     </div>
   );

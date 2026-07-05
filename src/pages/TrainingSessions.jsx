@@ -59,7 +59,7 @@ export default function TrainingSessions() {
       />
 
       {sessions.length === 0 ? (
-        <EmptyState title={t("training_empty_title")} description={t("training_empty_desc")} />
+        <EmptyState title={t("training_empty_title")} description={t("training_empty_desc")} variant="excited" />
       ) : (
         <div className="centered-card-grid">
           {sessions.map((session, index) => {

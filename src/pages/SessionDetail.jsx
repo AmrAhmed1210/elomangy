@@ -88,7 +88,8 @@ export default function SessionDetail() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-periodic-orange text-lg font-medium">Error: {error}</p>
+            <p className="text-chalkboard font-semibold">Something went a bit wrong on our end</p>
+            <p className="text-chalkboard-light text-sm mt-1">{error}</p>
           </div>
         </div>
       </PageLayout>
@@ -115,8 +116,9 @@ export default function SessionDetail() {
             <h2 className="mb-6 text-center font-display text-2xl font-bold text-chalkboard">Categories</h2>
             {categories.length === 0 ? (
               <EmptyState
-                title="No Categories"
-                description="Categories will appear here once they are added."
+                title="Nothing here yet"
+                description="We're still preparing these categories — check back soon."
+                variant="excited"
               />
             ) : (
               <div className="centered-card-grid">
@@ -134,8 +136,9 @@ export default function SessionDetail() {
             <h2 className="mb-6 text-center font-display text-2xl font-bold text-chalkboard">Videos</h2>
             {videos.length === 0 ? (
               <EmptyState
-                title="No Videos"
-                description="Videos will appear here once they are added."
+                title="No videos yet"
+                description="Videos will show up here once they're uploaded."
+                variant="excited"
               />
             ) : (
               <div className="centered-card-grid">

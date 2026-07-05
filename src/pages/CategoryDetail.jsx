@@ -74,7 +74,7 @@ export default function CategoryDetail() {
             <span className="mx-2 text-chalkboard-light/50">/</span>
             <Link to="/training-sessions" className="hover:text-lab-teal transition-colors">Training Sessions</Link>
             <span className="mx-2 text-chalkboard-light/50">/</span>
-            <span className="text-lab-teal">Loading...</span>
+            <span className="text-lab-teal">One sec, fetching that for you...</span>
           </nav>
           
           <div className="centered-card-grid">
@@ -106,7 +106,8 @@ export default function CategoryDetail() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p className="text-periodic-orange text-lg font-medium">Error: {error}</p>
+              <p className="text-chalkboard font-semibold">Something went a bit wrong on our end</p>
+            <p className="text-chalkboard-light text-sm mt-1">{error}</p>
             </div>
           </div>
         </div>
@@ -144,8 +145,9 @@ export default function CategoryDetail() {
         <h2 className="font-display font-semibold text-2xl text-chalkboard mb-6">Videos</h2>
         {videos.length === 0 ? (
           <EmptyState
-            title="No Videos"
-            description="Videos will appear here once they are added."
+            title="No videos yet"
+            description="Videos will show up here once they're uploaded."
+            variant="excited"
           />
         ) : (
           <div className="centered-card-grid">

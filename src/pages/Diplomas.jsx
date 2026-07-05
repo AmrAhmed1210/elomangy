@@ -5,6 +5,7 @@ import Card from "../components/common/Card";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import { useLanguage } from "../contexts/LanguageContext";
+import MascotLoader from "../components/common/MascotLoader";
 
 export default function Diplomas() {
   const { t, localize } = useLanguage();
@@ -72,8 +73,7 @@ function LoadingDiplomas() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-b-4 border-lab-teal" />
-        <p className="text-lg text-chalkboard-light">{t("common_loading")}</p>
+        <MascotLoader text={t("common_loading")} />
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ export default function VideoCard({ video }) {
       href={sourceUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative block overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lift)] focus-visible:ring-4 focus-visible:ring-lab-teal/20"
+      className="group relative block overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] shadow-[var(--shadow-soft)] transition-all duration-300 hover:-translate-y-1 hover:rotate-1 hover:shadow-[var(--shadow-lift)] active:translate-y-0 active:rotate-0 active:scale-[0.98] focus-visible:ring-4 focus-visible:ring-lab-teal/20"
     >
       {/* Thumbnail */}
       <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-lab-teal/10 to-answer-green/10">

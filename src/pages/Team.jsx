@@ -5,6 +5,7 @@ import PageHeader from "../components/layout/PageHeader";
 import LoadingSkeleton from "../components/common/LoadingSkeleton";
 import EmptyState from "../components/common/EmptyState";
 import { useLanguage } from "../contexts/LanguageContext";
+import MascotLoader from "../components/common/MascotLoader";
 
 const TEAM_TABS = [
   { key: "events", labelKey: "team_events" },
@@ -158,7 +159,7 @@ function EventsSection({ upcomingEvents, pastEvents }) {
   const { t, localize } = useLanguage();
   
   if (upcomingEvents.length === 0 && pastEvents.length === 0) {
-    return <EmptyState title={t("team_no_events")} description={t("team_no_events_desc")} />;
+    return <EmptyState title={t("team_no_events")} description={t("team_no_events_desc")} variant="excited" />;
   }
 
   return (
@@ -255,7 +256,7 @@ function ServicesSection({ services }) {
   const { t, localize } = useLanguage();
   
   if (services.length === 0) {
-    return <EmptyState title={t("team_no_services")} description={t("team_no_services_desc")} />;
+    return <EmptyState title={t("team_no_services")} description={t("team_no_services_desc")} variant="excited" />;
   }
 
   return (
@@ -294,8 +295,7 @@ function LoadingTeam() {
     <PageLayout>
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-b-4 border-lab-teal" />
-          <p className="text-lg text-chalkboard-light">{t("common_loading")}</p>
+          <MascotLoader text={t("common_loading")} />
         </div>
       </div>
     </PageLayout>

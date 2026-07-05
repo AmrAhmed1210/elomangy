@@ -6,6 +6,7 @@ import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import Fuse from "fuse.js";
 import { useLanguage } from "../contexts/LanguageContext";
+import MascotLoader from "../components/common/MascotLoader";
 
 export default function TrackYearDetail() {
   const { t, localize } = useLanguage();
@@ -59,8 +60,7 @@ export default function TrackYearDetail() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">{t("common_loading")}</p>
+        <MascotLoader text={t("common_loading")} />
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import { useLanguage } from "../contexts/LanguageContext";
+import MascotLoader from "../components/common/MascotLoader";
 
 const TYPE_CONFIG = {
   drive_folder: { label: "Drive Folder", icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z", color: "accent-blue" },
@@ -65,8 +66,7 @@ export default function CourseDetail() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">{t("common_loading")}</p>
+        <MascotLoader text={t("common_loading")} />
       </div>
     </div>
   );

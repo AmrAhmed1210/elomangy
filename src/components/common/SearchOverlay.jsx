@@ -169,17 +169,17 @@ export default function SearchOverlay({ isOpen, onClose }) {
           {loading ? (
             <div className="p-8 text-center">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-lab-teal mb-2" />
-              <p className="text-chalkboard-light text-sm">Loading...</p>
+              <p className="text-chalkboard-light text-sm">Getting things ready...</p>
             </div>
           ) : query && results.length === 0 ? (
             <div className="p-8 text-center">
-              <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <p className="text-chalkboard-light font-medium">No results found</p>
-              <p className="text-chalkboard-light/60 text-sm mt-1">Try a different search term</p>
+              <img
+                src="/logo-mark.png"
+                alt=""
+                className="mx-auto mb-3 h-14 w-14 object-contain -rotate-6 opacity-80 grayscale-[35%]"
+              />
+              <p className="text-chalkboard-light font-medium">We didn't catch anything on that one</p>
+              <p className="text-chalkboard-light/60 text-sm mt-1">Try a different word, or check the spelling</p>
             </div>
           ) : !query ? (
             <div className="p-8 text-center">

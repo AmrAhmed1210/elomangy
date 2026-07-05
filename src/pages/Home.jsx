@@ -4,10 +4,47 @@ import { supabase } from "../lib/supabase";
 import useSiteConfig from "../hooks/useSiteConfig";
 import { useLanguage } from "../contexts/LanguageContext";
 
+// Animates a number counting up from 0 to `value` once, on mount / when value changes.
+function useCountUp(value, duration = 900) {
+  const [display, setDisplay] = useState(0);
+
+  useEffect(() => {
+    if (typeof value !== "number" || Number.isNaN(value)) return;
+    let start = null;
+    let frame;
+
+    function step(timestamp) {
+      if (start === null) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * value));
+      if (progress < 1) {
+        frame = requestAnimationFrame(step);
+      }
+    }
+
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [value, duration]);
+
+  return display;
+}
+
 export default function Home() {
   const { config } = useSiteConfig();
   const { t } = useLanguage();
   const [departmentCount, setDepartmentCount] = useState(13);
+  const animatedDepartmentCount = useCountUp(departmentCount);
+  const [showWelcomeWave, setShowWelcomeWave] = useState(false);
+
+  useEffect(() => {
+    const hasWaved = localStorage.getItem("3loomangy_welcomed");
+    if (!hasWaved) {
+      setShowWelcomeWave(true);
+      localStorage.setItem("3loomangy_welcomed", "1");
+    }
+  }, []);
 
   useEffect(() => {
     async function fetchDepartmentCount() {
@@ -24,8 +61,10 @@ export default function Home() {
         <div className="text-center mb-16 sm:mb-24">
           <img
             src="/logo-mark.png"
-            alt="3loomangy mascot"
-            className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 animate-[float_6s_ease-in-out_infinite] drop-shadow-sm"
+            alt="3loomangy student mascot"
+            className={`w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 drop-shadow-sm ${
+              showWelcomeWave ? "animate-mascot-wave" : "animate-[float_6s_ease-in-out_infinite]"
+            }`}
           />
           <div className="inline-block mb-5">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-lab-teal/8 text-lab-teal rounded-full text-sm font-medium border border-lab-teal/15">
@@ -46,6 +85,12 @@ export default function Home() {
             {t("home_subtitle")}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/chatbot" className="btn-primary group">
+              {t("home_ask_bot")}
+              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4.255-.949L3 20l1.395-3.72A7.55 7.55 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+            </Link>
             <Link to="/materials" className="btn-primary group">
               {t("home_browse_materials")}
               <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +118,7 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-5 pt-2">
               {[
-                { value: `${departmentCount}+`, label: t("home_departments") },
+                { value: `${animatedDepartmentCount}+`, label: t("home_departments") },
                 { value: "100s", label: t("home_courses") },
                 { value: t("home_free_forever"), label: "" },
               ].map((stat, i) => (

@@ -25,6 +25,7 @@ import Team from "./pages/Team";
 import JoinUs from "./pages/JoinUs";
 import SpecialSectionDetail from "./pages/SpecialSectionDetail";
 import Chatbot from "./pages/Chatbot";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -74,6 +75,7 @@ function App() {
                       </ProtectedAdminRoute>
                     }
                   />
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </div>
 

@@ -3,6 +3,8 @@ import { supabase } from "../lib/supabase";
 import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import { useLanguage } from "../contexts/LanguageContext";
+import MascotLoader from "../components/common/MascotLoader";
+import ConfettiBurst from "../components/common/ConfettiBurst";
 
 const FACULTY_LEVELS = {
   en: ["First Year", "Second Year", "Third Year", "Fourth Year"],
@@ -72,6 +74,13 @@ export default function JoinUs() {
 
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    e.target.setCustomValidity("");
+  }
+
+  function makeInvalidHandler(fieldMessageEn, fieldMessageAr) {
+    return (e) => {
+      e.target.setCustomValidity(language === "ar" ? fieldMessageAr : fieldMessageEn);
+    };
   }
 
   if (configLoading) {
@@ -79,8 +88,7 @@ export default function JoinUs() {
       <PageLayout>
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">
-            <div className="mb-4 inline-block h-12 w-12 animate-spin rounded-full border-b-4 border-lab-teal" />
-            <p className="text-lg text-chalkboard-light">{t("common_loading")}</p>
+            <MascotLoader text={t("common_loading")} />
           </div>
         </div>
       </PageLayout>
@@ -125,7 +133,8 @@ export default function JoinUs() {
       />
 
       <div className="max-w-2xl mx-auto">
-        <div className="glass-card p-8">
+        <div className="relative glass-card p-8">
+          {message.type === "success" && <ConfettiBurst />}
           {message.text && (
             <div
               className={`mb-6 p-4 rounded-xl ${
@@ -149,6 +158,7 @@ export default function JoinUs() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                onInvalid={makeInvalidHandler("Don't forget to write your name here 👀", "ناسي تكتب اسمك هنا 👀")}
                 required
                 className="w-full px-4 py-3 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard placeholder:text-chalkboard-light/50 focus:outline-none focus:ring-2 focus:ring-lab-teal/50 focus:border-lab-teal transition-all"
                 placeholder={t("join_name")}
@@ -165,6 +175,7 @@ export default function JoinUs() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                onInvalid={makeInvalidHandler("We'll need a valid email to reach you", "محتاجين إيميل صحيح عشان نرجعلك")}
                 required
                 className="w-full px-4 py-3 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard placeholder:text-chalkboard-light/50 focus:outline-none focus:ring-2 focus:ring-lab-teal/50 focus:border-lab-teal transition-all"
                 placeholder="your.email@example.com"
@@ -195,6 +206,7 @@ export default function JoinUs() {
                 name="faculty_level"
                 value={formData.faculty_level}
                 onChange={handleChange}
+                onInvalid={makeInvalidHandler("Pick your year so we know where to place you", "اختار سنتك عشان نعرف نحطك فين")}
                 required
                 className="w-full px-4 py-3 rounded-xl border border-[var(--surface-border)] bg-[var(--surface-card)] text-chalkboard focus:outline-none focus:ring-2 focus:ring-lab-teal/50 focus:border-lab-teal transition-all"
               >

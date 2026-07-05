@@ -35,7 +35,7 @@ export default function Card({
   const linkTarget = externalLink || to;
 
   const content = (
-    <article className="group relative flex h-full min-h-[210px] flex-col overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-soft)] backdrop-blur-md transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[var(--shadow-lift)] group-active:translate-y-0">
+    <article className="card-lift group relative flex h-full min-h-[210px] flex-col overflow-hidden rounded-2xl border border-[var(--surface-border)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-soft)] backdrop-blur-md group-hover:shadow-[var(--shadow-lift)]">
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${colors.from} ${colors.to}`} />
       <CardBubbles color={colors.raw} />
 

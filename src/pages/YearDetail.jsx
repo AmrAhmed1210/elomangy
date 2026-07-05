@@ -6,6 +6,7 @@ import PageLayout from "../components/layout/PageLayout";
 import PageHeader from "../components/layout/PageHeader";
 import Fuse from "fuse.js";
 import { useLanguage } from "../contexts/LanguageContext";
+import MascotLoader from "../components/common/MascotLoader";
 
 const YEAR_INFO = {
   1: { name: "First Year", description: "General courses shared by all students", color: "lab-teal" },
@@ -75,8 +76,7 @@ export default function YearDetail() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-3 border-lab-teal mb-4" />
-        <p className="text-chalkboard-light">{t("common_loading")}</p>
+        <MascotLoader text={t("common_loading")} />
       </div>
     </div>
   );
@@ -125,7 +125,7 @@ export default function YearDetail() {
       {yearNum === 1 ? (
         <>
           {filteredSemesters.length === 0 ? (
-            <EmptyState text={searchQuery ? t("no_semesters_found") : t("no_semesters_yet")} />
+            <EmptyState text={searchQuery ? t("no_semesters_found") : t("no_semesters_yet")} variant={searchQuery ? "search" : "idle"} />
           ) : (
             <div className="centered-card-grid">
               {filteredSemesters.map((semester, i) => (
@@ -150,7 +150,7 @@ export default function YearDetail() {
       ) : (
         <>
           {filteredTracks.length === 0 ? (
-            <EmptyState text={searchQuery ? t("no_departments_found") : t("no_departments_yet")} />
+            <EmptyState text={searchQuery ? t("no_departments_found") : t("no_departments_yet")} variant={searchQuery ? "search" : "idle"} />
           ) : (
             <div className="centered-card-grid">
               {filteredTracks.map((track, i) => (
