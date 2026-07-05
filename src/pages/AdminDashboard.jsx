@@ -1118,19 +1118,41 @@ function TrainingManager() {
   );
 }
 
+const emptyAboutForm = {
+  about_what_title: "",
+  about_what_title_ar: "",
+  about_what_body: "",
+  about_what_body_ar: "",
+  about_fscu_title: "",
+  about_fscu_title_ar: "",
+  about_fscu_content: "",
+  about_fscu_content_ar: "",
+  about_students_title: "",
+  about_students_title_ar: "",
+  about_students_body: "",
+  about_students_body_ar: "",
+};
+
+const ABOUT_COLUMNS = Object.keys(emptyAboutForm).join(", ");
+
 function AboutManager() {
-  const [content, setContent] = useState("");
+  const [form, setForm] = useState(emptyAboutForm);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     async function loadAbout() {
-      const { data, error } = await supabase.from("site_config").select("about_fscu_content").eq("id", 1).single();
+      const { data, error } = await supabase.from("site_config").select(ABOUT_COLUMNS).eq("id", 1).single();
       if (error) {
         setMessage({ type: "error", text: friendlyError(error.message) });
-      } else {
-        setContent(data?.about_fscu_content ?? "");
+      } else if (data) {
+        const sanitized = Object.fromEntries(
+          Object.keys(emptyAboutForm).map((key) => [key, data[key] ?? ""])
+        );
+        setForm(sanitized);
       }
+      setLoading(false);
     }
     loadAbout();
   }, []);
@@ -1138,34 +1160,82 @@ function AboutManager() {
   async function saveAbout(event) {
     event.preventDefault();
     setBusy(true);
-    const { error } = await supabase.from("site_config").update({ about_fscu_content: content }).eq("id", 1);
-    setMessage(error ? { type: "error", text: friendlyError(error.message) } : { type: "success", text: "About FSCU content saved." });
+    const payload = Object.fromEntries(
+      Object.entries(form).map(([key, value]) => [key, value.trim() ? value : null])
+    );
+    const { error } = await supabase.from("site_config").update(payload).eq("id", 1);
+    setMessage(error ? { type: "error", text: friendlyError(error.message) } : { type: "success", text: "About page saved." });
     setBusy(false);
   }
 
+  function set(key) {
+    return (value) => setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  if (loading) return <EmptyPrompt text="Loading About page content..." />;
+
   return (
     <section className="grid gap-5">
-      <HeaderPanel breadcrumb={["About FSCU"]} message={message} kicker="Site content" title="About FSCU admin" />
-      <AdminPanel title="About FSCU content" description="Edit the text shown on the public About page and used later by the assistant.">
-        <form onSubmit={saveAbout} className="grid gap-3">
-          <label>
-            <span className="text-sm font-medium text-slate-300">About FSCU text</span>
-            <textarea
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              rows={14}
-              className="mt-1 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={busy}
-            className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {busy ? "Saving..." : "Save About FSCU"}
-          </button>
-        </form>
-      </AdminPanel>
+      <HeaderPanel breadcrumb={["About Page"]} message={message} kicker="Site content" title="About page admin" />
+      <form onSubmit={saveAbout} className="grid gap-5">
+        <AdminPanel title='Section 1 — "What is 3loomangy?"' description="Explains what the team does. Keep it clear this is a volunteer student initiative, not the student union or the faculty administration.">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextField label="Title (English)" value={form.about_what_title} onChange={set("about_what_title")} placeholder="What is 3loomangy?" />
+            <TextField label="Title (Arabic)" value={form.about_what_title_ar} onChange={set("about_what_title_ar")} placeholder="إيه هو 3loomangy؟" />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <TextareaField label="Body (English)" value={form.about_what_body} onChange={set("about_what_body")} />
+            <TextareaField label="Body (Arabic)" value={form.about_what_body_ar} onChange={set("about_what_body_ar")} />
+          </div>
+        </AdminPanel>
+
+        <AdminPanel title="Section 2 — About FSCU" description="General info about the Faculty of Science, Cairo University. Supports multiple paragraphs — separate them with a blank line.">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextField label="Title (English)" value={form.about_fscu_title} onChange={set("about_fscu_title")} placeholder="About FSCU" />
+            <TextField label="Title (Arabic)" value={form.about_fscu_title_ar} onChange={set("about_fscu_title_ar")} placeholder="عن FSCU" />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <label>
+              <span className="text-sm font-medium text-slate-300">Content (English)</span>
+              <textarea
+                value={form.about_fscu_content}
+                onChange={(event) => set("about_fscu_content")(event.target.value)}
+                rows={8}
+                className="mt-1 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
+              />
+            </label>
+            <label>
+              <span className="text-sm font-medium text-slate-300">Content (Arabic)</span>
+              <textarea
+                value={form.about_fscu_content_ar}
+                onChange={(event) => set("about_fscu_content_ar")(event.target.value)}
+                rows={8}
+                dir="rtl"
+                className="mt-1 w-full rounded-card border border-slate-700 bg-slate-950 px-3 py-2 text-sm leading-6 text-slate-100 outline-none transition focus:border-cyan-300"
+              />
+            </label>
+          </div>
+        </AdminPanel>
+
+        <AdminPanel title="Section 3 — Built by students, for students">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <TextField label="Title (English)" value={form.about_students_title} onChange={set("about_students_title")} placeholder="Built by students, for students" />
+            <TextField label="Title (Arabic)" value={form.about_students_title_ar} onChange={set("about_students_title_ar")} placeholder="من الطلبة وللطلبة" />
+          </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            <TextareaField label="Body (English)" value={form.about_students_body} onChange={set("about_students_body")} />
+            <TextareaField label="Body (Arabic)" value={form.about_students_body_ar} onChange={set("about_students_body_ar")} />
+          </div>
+        </AdminPanel>
+
+        <button
+          type="submit"
+          disabled={busy}
+          className="min-h-11 w-fit rounded-card bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy ? "Saving..." : "Save About Page"}
+        </button>
+      </form>
     </section>
   );
 }

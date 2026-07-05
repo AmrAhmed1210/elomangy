@@ -22,6 +22,11 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20">
         {/* Hero */}
         <div className="text-center mb-16 sm:mb-24">
+          <img
+            src="/logo-mark.png"
+            alt="3loomangy mascot"
+            className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 animate-[float_6s_ease-in-out_infinite] drop-shadow-sm"
+          />
           <div className="inline-block mb-5">
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-lab-teal/8 text-lab-teal rounded-full text-sm font-medium border border-lab-teal/15">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

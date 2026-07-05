@@ -16,8 +16,11 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <Link to="/" className="text-xl font-bold font-display text-transparent bg-clip-text bg-gradient-to-r from-lab-teal to-lab-teal-dark">
-              3loomangy
+            <Link to="/" className="flex items-center gap-2.5">
+              <img src="/logo-mark.png" alt="3loomangy" className="h-11 w-11 object-contain" />
+              <span className="text-xl font-bold font-display text-transparent bg-clip-text bg-gradient-to-r from-lab-teal to-lab-teal-dark">
+                3loomangy
+              </span>
             </Link>
             <p className="mt-3 text-sm text-chalkboard-light leading-relaxed max-w-xs">
               {t("footer_description")}

@@ -43,9 +43,11 @@ export default function Navbar() {
           <div className="flex justify-between h-16 items-center gap-3">
             {/* Logo */}
             <Link to="/" className="group flex shrink-0 items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-lab-teal text-sm font-black text-white shadow-lg shadow-lab-teal/20">
-                3
-              </span>
+              <img
+                src="/logo-mark.png"
+                alt="3loomangy"
+                className="h-10 w-10 object-contain"
+              />
               <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-lab-teal to-lab-teal-dark font-display group-hover:opacity-90 transition-opacity">
                 3loomangy
               </span>

@@ -6,11 +6,18 @@ import { useLanguage } from "../contexts/LanguageContext";
 
 export default function About() {
   const { config, loading } = useSiteConfig();
-  const { t } = useLanguage();
+  const { t, localize } = useLanguage();
 
-  const paragraphs = config.aboutFscuContent
-    ? config.aboutFscuContent.split("\n\n").filter(Boolean)
-    : [];
+  // Admin-controlled content, per language, falling back to the built-in defaults
+  // so the page never looks empty before an admin fills these in.
+  const whatTitle = localize(config, "aboutWhatTitle", "aboutWhatTitleAr") || t("about_what_title");
+  const whatBody = localize(config, "aboutWhatBody", "aboutWhatBodyAr") || t("about_what_body");
+  const fscuTitle = localize(config, "aboutFscuTitle", "aboutFscuTitleAr") || t("about_fscu_title");
+  const fscuContent = localize(config, "aboutFscuContent", "aboutFscuContentAr");
+  const studentsTitle = localize(config, "aboutStudentsTitle", "aboutStudentsTitleAr") || t("about_students_title");
+  const studentsBody = localize(config, "aboutStudentsBody", "aboutStudentsBodyAr") || t("about_students_body");
+
+  const paragraphs = fscuContent ? fscuContent.split("\n\n").filter(Boolean) : [];
 
   return (
     <PageLayout>
@@ -23,15 +30,15 @@ export default function About() {
 
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="glass-card p-6 sm:p-8 border-l-4 border-l-lab-teal">
-          <h3 className="font-display font-semibold text-xl text-chalkboard mb-3">{t("about_what_title")}</h3>
+          <h3 className="font-display font-semibold text-xl text-chalkboard mb-3">{whatTitle}</h3>
           <p className="text-chalkboard-light leading-relaxed">
-            {t("about_what_body")}
+            {whatBody}
           </p>
         </div>
 
         {!loading && paragraphs.length > 0 && (
           <div className="glass-card p-6 sm:p-8 border-l-4 border-l-answer-green">
-            <h3 className="font-display font-semibold text-xl text-chalkboard mb-4">{t("about_fscu_title")}</h3>
+            <h3 className="font-display font-semibold text-xl text-chalkboard mb-4">{fscuTitle}</h3>
             <div className="space-y-4 text-chalkboard-light leading-relaxed">
               {paragraphs.map((p, i) => (
                 <p key={i}>{p}</p>
@@ -41,9 +48,9 @@ export default function About() {
         )}
 
         <div className="glass-card p-6 sm:p-8 border-l-4 border-l-periodic-orange">
-          <h3 className="font-display font-semibold text-xl text-chalkboard mb-3">{t("about_students_title")}</h3>
+          <h3 className="font-display font-semibold text-xl text-chalkboard mb-3">{studentsTitle}</h3>
           <p className="text-chalkboard-light leading-relaxed">
-            {t("about_students_body")}
+            {studentsBody}
           </p>
         </div>
 

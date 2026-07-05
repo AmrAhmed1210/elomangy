@@ -54,7 +54,7 @@ const translations = {
     
     // Join Us
     join_title: "Join Us",
-    join_subtitle: "Join the Faculty of Science Students Union",
+    join_subtitle: "Join the 3loomangy volunteer team",
     join_closed: "Registration is currently closed",
     join_open: "Registration is open",
     join_name: "Full Name",
@@ -132,9 +132,9 @@ const translations = {
     // About
     about_badge: "About",
     about_title: "About 3loomangy",
-    about_subtitle: "Student-run platform for FSCU",
+    about_subtitle: "Volunteer team helping FSCU students",
     about_what_title: "What is 3loomangy?",
-    about_what_body: "3loomangy is a student-run platform for Faculty of Science, Cairo University students. We organize study materials by department, semester, and course so you can find what you need without digging through WhatsApp groups.",
+    about_what_body: "3loomangy is a volunteer team of Faculty of Science, Cairo University students. We help students with their studies and prepare them for the job market. We organize study materials by department, semester, and course so you can find what you need without digging through WhatsApp groups.",
     about_fscu_title: "About FSCU",
     about_students_title: "Built by students, for students",
     about_students_body: "The site is built and maintained by FSCU students. All materials are curated by students who have actually taken these courses.",
@@ -146,7 +146,7 @@ const translations = {
     footer_connect: "Connect",
     footer_about_fscu: "About FSCU",
     footer_admin_dashboard: "Admin dashboard",
-    footer_built_by: "Built by FSCU students",
+    footer_built_by: "Built by FSCU students, led by Amr Ahmed",
     footer_faculty: "Faculty of Science, Cairo University",
 
     // Chatbot
@@ -182,7 +182,7 @@ const translations = {
     nav_chatbot: "علومنجي بوت",
     
     // Home
-    home_hero_badge: "موارد طلاب اتحاد العلوم",
+    home_hero_badge: "موارد طلاب كلية العلوم",
     home_welcome: "مرحباً بك في",
     home_subtitle: "مركز مواردك الدراسية لكلية العلوم، جامعة القاهرة",
     home_browse_materials: "تصفح المواد",
@@ -222,7 +222,7 @@ const translations = {
     
     // Join Us
     join_title: "انضم إلينا",
-    join_subtitle: "انضم إلى اتحاد طلاب كلية العلوم",
+    join_subtitle: "انضم لتيم علومنجي التطوعي",
     join_closed: "التسجيل مغلق حالياً",
     join_open: "التسجيل مفتوح",
     join_name: "الاسم الكامل",
@@ -249,7 +249,7 @@ const translations = {
     admin_team: "عمل الفريق",
     admin_join_requests: "طلبات الانضمام",
     admin_contact_social: "التواصل والشبكات",
-    admin_about: "عن اتحاد الطلاب",
+    admin_about: "عن FSCU",
     
     // Common
     common_loading: "جاري التحميل...",
@@ -300,9 +300,9 @@ const translations = {
     // About
     about_badge: "عنّا",
     about_title: "عن 3loomangy",
-    about_subtitle: "منصة معمولة بطلبة FSCU",
+    about_subtitle: "تيم تطوعي من طلبة علوم القاهرة",
     about_what_title: "إيه هو 3loomangy؟",
-    about_what_body: "3loomangy منصة معمولة بطلبة كلية العلوم جامعة القاهرة. بنرتب الماتريال حسب القسم والترم والمادة عشان توصل للي محتاجه من غير تدوير كتير في جروبات واتساب.",
+    about_what_body: "3loomangy تيم تطوعي من طلبة كلية العلوم جامعة القاهرة. بنساعد الطلبة في المذاكرة وبنأهلهم لسوق العمل. بنرتب الماتريال حسب القسم والترم والمادة عشان توصل للي محتاجه من غير تدوير كتير في جروبات واتساب.",
     about_fscu_title: "عن FSCU",
     about_students_title: "من الطلبة وللطلبة",
     about_students_body: "الموقع مبني وبيتحدث بواسطة طلبة FSCU. الماتريال متجمعة ومنظمة من طلبة دخلوا المواد دي فعلًا.",
@@ -314,7 +314,7 @@ const translations = {
     footer_connect: "تواصل",
     footer_about_fscu: "عن FSCU",
     footer_admin_dashboard: "لوحة الإدارة",
-    footer_built_by: "اتعمل بواسطة طلبة FSCU",
+    footer_built_by: "اتعمل بواسطة طلبة FSCU، بقيادة عمرو أحمد",
     footer_faculty: "كلية العلوم، جامعة القاهرة",
 
     // Chatbot
