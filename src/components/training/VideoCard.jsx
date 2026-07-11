@@ -62,7 +62,7 @@ export default function VideoCard({ video }) {
             alt={video.title}
             onError={handleThumbnailError}
             onLoad={handleThumbnailLoad}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

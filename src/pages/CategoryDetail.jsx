@@ -69,7 +69,7 @@ export default function CategoryDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white dark:via-slate-950 to-lab-teal/5 p-8">
         <div className="max-w-7xl mx-auto">
           <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
             <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>
@@ -91,7 +91,7 @@ export default function CategoryDetail() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white dark:via-slate-950 to-lab-teal/5 p-8">
         <div className="max-w-7xl mx-auto">
           <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
             <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>
@@ -118,7 +118,7 @@ export default function CategoryDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white dark:via-slate-950 to-lab-teal/5 p-8">
       <div className="max-w-7xl mx-auto">
         <nav className="mb-6 text-sm font-mono-smallcaps text-chalkboard-light">
           <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>

@@ -49,11 +49,11 @@ export default function SpecialSectionDetail() {
     fetchData();
   }, [slug]);
 
-  if (loading) return <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 flex items-center justify-center"><div className="text-center"><MascotLoader text={t("common_loading")} size="lg" /></div></div>;
-  if (error) return <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 flex items-center justify-center"><div className="text-center"><img src="/logo-mark.png" alt="" className="w-16 h-16 object-contain mx-auto mb-4 -rotate-12 opacity-80" /><p className="text-chalkboard font-semibold">{t("common_error")}</p><p className="text-chalkboard-light text-sm mt-1">{error}</p></div></div>;
+  if (loading) return <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white dark:via-slate-950 to-lab-teal/5 flex items-center justify-center"><div className="text-center"><MascotLoader text={t("common_loading")} size="lg" /></div></div>;
+  if (error) return <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white dark:via-slate-950 to-lab-teal/5 flex items-center justify-center"><div className="text-center"><img src="/logo-mark.png" alt="" className="w-16 h-16 object-contain mx-auto mb-4 -rotate-12 opacity-80" /><p className="text-chalkboard font-semibold">{t("common_error")}</p><p className="text-chalkboard-light text-sm mt-1">{error}</p></div></div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white to-lab-teal/5 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-specimen-bg via-white dark:via-slate-950 to-lab-teal/5 p-8">
       <div className="max-w-4xl mx-auto">
         <nav className="mb-8 text-sm text-chalkboard-light">
           <Link to="/" className="hover:text-lab-teal transition-colors">{t("nav_home")}</Link>
